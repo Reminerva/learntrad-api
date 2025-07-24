@@ -1,0 +1,5 @@
+com\learntrad\microservices\Main.class
+com\learntrad\microservices\shared\client\external\TwelveDataClient$TwelveDataPriceResponse.class
+com\learntrad\microservices\shared\client\external\TwelveDataClient$TimeSeriesResponse.class
+com\learntrad\microservices\shared\client\external\TwelveDataClient$TimeSeriesValue.class
+com\learntrad\microservices\shared\client\external\TwelveDataClient.class

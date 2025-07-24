@@ -1,0 +1,17 @@
+services:
+  timescale:
+    image: timescale/timescaledb:latest-pg15
+    container_name: marketdata_timescale
+    environment:
+      POSTGRES_DB: marketdata_timescale_db
+      POSTGRES_USER: marketdata_timescale_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5434:5432"
+    volumes:
+      - marketdata_timescale_db_data:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    restart: always
+
+volumes:
+  marketdata_timescale_db_data:

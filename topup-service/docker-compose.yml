@@ -1,0 +1,28 @@
+version: '4'
+
+services:
+  postgres:
+    image: postgres:13-alpine 
+    container_name: topup_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: topup_postgres_db
+      POSTGRES_USER: topup_postgres_user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5438:5432" 
+    volumes:
+      - topup_postgres_db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: topup_redis
+    ports:
+      - "6381:6379"
+    command: ["redis-server", "--notify-keyspace-events", "Ex"]
+    volumes:
+      - topup_redis_data:/data
+
+volumes:
+  topup_postgres_db_data:
+  topup_redis_data:
