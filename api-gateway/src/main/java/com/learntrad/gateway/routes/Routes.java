@@ -7,6 +7,7 @@ import org.springframework.web.servlet.function.RequestPredicates;
 import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
+import com.learntrad.gateway.config.JwtFilter;
 import com.learntrad.microservices.shared.constant.ApiBash;
 
 import static org.springframework.cloud.gateway.server.mvc.handler.GatewayRouterFunctions.route;
@@ -14,6 +15,7 @@ import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFuncti
 
 import java.net.URI;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.server.mvc.filter.CircuitBreakerFilterFunctions;
 
@@ -22,6 +24,9 @@ import static org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFu
 
 @Configuration
 public class Routes {
+
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Value("${customer.service.url}")
     private String customerServiceUrl;
@@ -47,11 +52,37 @@ public class Routes {
     @Value("${springdoc.swagger-ui.urls[3].url}")
     private String topUpSwaggerUrl;
 
+    @Value("${auth.service.url}")
+    private String authServiceUrl;
+
+    @Value("${springdoc.swagger-ui.urls[4].url}")
+    private String authSwaggerUrl;
+
+    @Bean
+    public RouterFunction<ServerResponse> authServiceRoute() {
+        return route("auth_service")
+            .route(RequestPredicates.path(ApiBash.AUTH_API + "/**"), http())
+            .before(uri(authServiceUrl))
+            .filter(CircuitBreakerFilterFunctions.circuitBreaker("authServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
+            .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> authServiceSwaggerRoute() {
+        return route("auth_service_swagger")
+            .route(RequestPredicates.path(authSwaggerUrl), http())
+            .before(uri(authServiceUrl))
+            .filter(CircuitBreakerFilterFunctions.circuitBreaker("authServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
+            .filter(setPath("/api-docs"))
+            .build();
+    }
+
     @Bean
     public RouterFunction<ServerResponse> customerServiceRoute() {
         return route("customer_service")
             .route(RequestPredicates.path(ApiBash.CUSTOMER + "/**"), http())
             .before(uri(customerServiceUrl))
+            .filter(jwtFilter.jwtAuthFilter())
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("customerServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
             .build();
     }
@@ -71,6 +102,7 @@ public class Routes {
         return route("marketdata_service")
             .route(RequestPredicates.path(ApiBash.MARKET_DATA + "/**"), http())
             .before(uri(marketDataServiceUrl))
+            .filter(jwtFilter.jwtAuthFilter())
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("marketDataServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
             .build();
     }
@@ -90,6 +122,7 @@ public class Routes {
         return route("trade_service")
             .route(RequestPredicates.path(ApiBash.TRADE + "/**"), http())
             .before(uri(tradeServiceUrl))
+            .filter(jwtFilter.jwtAuthFilter())
             .filter(CircuitBreakerFilterFunctions.circuitBreaker("tradeServiceCircuitBreaker", URI.create("forward:/fallbackRoute")))
             .build();
     }

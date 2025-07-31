@@ -8,6 +8,14 @@ public class ApiBash {
     public static final String TRADE = "/api/trade";
     public static final String MARKET_DATA = "/api/market-data";
     public static final String TOP_UP = "/api/top-up";
+    public static final String AUTH_API = "/api/auth";
+
+    public static final String REGISTER_SUCCESS = "Register success!";
+    public static final String LOGIN_SUCCESS = "Login success!";
+    public static final String LOGOUT_SUCCESS = "Logout success!";
+    public static final String REFRESH_TOKEN_SUCCESS = "Refresh token success!";
+    public static final String TOKEN_VALID = "Token is valid!";
+    public static final String TOKEN_INVALID = "Token is invalid!";
 
     public static final String CREATE_CUSTOMER_SUCCESS = "Customer created successfully!";
     public static final String GET_CUSTOMER_SUCCESS = "Get customer success!";
