@@ -1,5 +1,6 @@
 package com.learntrad.microservices.notification.service.impl;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -22,13 +23,17 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final JavaMailSender javaMailSender;
 
+    @Value("${mail.email}")
+    private String from;
+
+
     @Override
     @KafkaListener(topics = "trade-placed", containerFactory = "kafkaListenerContainerFactory")
     public void listenTradePlaced(TradePlacedEvent event) {
         log.info("Received Message from trade-placed topic {}", event);
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setFrom("reksaalamsyah@gmail.com");
+            helper.setFrom(from);
             helper.setTo(event.getEmail().toString());
             helper.setSubject("Trade Placed with TradeId " + event.getTradeId());
             helper.setText(String.format("""
@@ -69,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
             ));
         };
         log.info("Start - Sending email to {}", event.getEmail());
-        // sendEmail(messagePreparator);
+        sendEmail(messagePreparator);
         log.info("End - Email sent to {}", event.getEmail());
     }
 
@@ -79,7 +84,7 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Received Message from trade-edited topic {}", event);
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setFrom("reksaalamsyah@gmail.com");
+            helper.setFrom(from);
             helper.setTo(event.getEmail().toString());
             helper.setSubject("Trade Edited with TradeId " + event.getTradeId());
             helper.setText(String.format("""
@@ -120,7 +125,7 @@ public class NotificationServiceImpl implements NotificationService {
             ));
         };
         log.info("Start - Sending email to {}", event.getEmail());
-        // sendEmail(messagePreparator);
+        sendEmail(messagePreparator);
         log.info("End - Email sent to {}", event.getEmail());
     }
 
@@ -164,14 +169,14 @@ public class NotificationServiceImpl implements NotificationService {
                 );
                 MimeMessagePreparator messagePreparator = mimeMessage -> {
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-                    helper.setFrom("reksaalamsyah@gmail.com");
+                    helper.setFrom(from);
                     helper.setTo(event.getEmail().toString());
                     helper.setSubject(subject);
                     helper.setText(messageBody);
                 };
                 
                 log.info("Start - Sending email to {}", event.getEmail());
-                // sendEmail(messagePreparator);
+                sendEmail(messagePreparator);
                 log.info("End - Email sent to {}", event.getEmail());
             }
 
@@ -206,14 +211,14 @@ public class NotificationServiceImpl implements NotificationService {
                 );
                 MimeMessagePreparator messagePreparator = mimeMessage -> {
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-                    helper.setFrom("reksaalamsyah@gmail.com");
+                    helper.setFrom(from);
                     helper.setTo(event.getEmail().toString());
                     helper.setSubject(subject);
                     helper.setText(messageBody);
                 };
                 
                 log.info("Start - Sending email to {}", event.getEmail());
-                // sendEmail(messagePreparator);
+                sendEmail(messagePreparator);
                 log.info("End - Email sent to {}", event.getEmail());
             }
 
@@ -244,14 +249,14 @@ public class NotificationServiceImpl implements NotificationService {
                 );
                 MimeMessagePreparator messagePreparator = mimeMessage -> {
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-                    helper.setFrom("reksaalamsyah@gmail.com");
+                    helper.setFrom(from);
                     helper.setTo(event.getEmail().toString());
                     helper.setSubject(subject);
                     helper.setText(messageBody);
                 };
                 
                 log.info("Start - Sending email to {}", event.getEmail());
-                // sendEmail(messagePreparator);
+                sendEmail(messagePreparator);
                 log.info("End - Email sent to {}", event.getEmail());
             }
 
@@ -282,14 +287,14 @@ public class NotificationServiceImpl implements NotificationService {
                 );
                 MimeMessagePreparator messagePreparator = mimeMessage -> {
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-                    helper.setFrom("reksaalamsyah@gmail.com");
+                    helper.setFrom(from);
                     helper.setTo(event.getEmail().toString());
                     helper.setSubject(subject);
                     helper.setText(messageBody);
                 };
                 
                 log.info("Start - Sending email to {}", event.getEmail());
-                // sendEmail(messagePreparator);
+                sendEmail(messagePreparator);
                 log.info("End - Email sent to {}", event.getEmail());
             }
 
@@ -324,14 +329,14 @@ public class NotificationServiceImpl implements NotificationService {
                 );
                 MimeMessagePreparator messagePreparator = mimeMessage -> {
                     MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-                    helper.setFrom("reksaalamsyah@gmail.com");
+                    helper.setFrom(from);
                     helper.setTo(event.getEmail().toString());
                     helper.setSubject(subject);
                     helper.setText(messageBody);
                 };
                 
                 log.info("Start - Sending email to {}", event.getEmail());
-                // sendEmail(messagePreparator);
+                sendEmail(messagePreparator);
                 log.info("End - Email sent to {}", event.getEmail());
             }
 
@@ -372,14 +377,14 @@ public class NotificationServiceImpl implements NotificationService {
         );
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage);
-            helper.setFrom("reksaalamsyah@gmail.com");
+            helper.setFrom(from);
             helper.setTo(event.getEmail().toString());
             helper.setSubject(subject);
             helper.setText(messageBody);
         };
         
         log.info("Start - Sending email to {}", event.getEmail());
-        // sendEmail(messagePreparator);
+        sendEmail(messagePreparator);
         log.info("End - Email sent to {}", event.getEmail());
     }
 

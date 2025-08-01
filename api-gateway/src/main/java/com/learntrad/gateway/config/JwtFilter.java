@@ -38,7 +38,7 @@ public class JwtFilter {
                 boolean isValid = responseJsonNode.has("data") && "true".equals(responseJsonNode.get("data").asText());
 
                 if (!isValid) {
-                    return ServerResponse.status(HttpStatus.UNAUTHORIZED).build();
+                    return ServerResponse.status(HttpStatus.UNAUTHORIZED).body("Token invalid: " + responseBody);
                 }
 
                 return next.handle(request);
@@ -46,7 +46,7 @@ public class JwtFilter {
             } catch (WebClientResponseException e) {
                 return ServerResponse.status(HttpStatus.UNAUTHORIZED).body("Token invalid: " + e.getResponseBodyAsString());
             } catch (Exception e) {
-                e.printStackTrace(); // Cetak stack trace untuk debugging lebih lanjut
+                e.printStackTrace();
                 return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred during token validation.");
             }
         };

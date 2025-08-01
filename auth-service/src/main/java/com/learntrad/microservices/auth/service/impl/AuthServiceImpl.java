@@ -232,6 +232,13 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Boolean validateToken(String authHeader) {
+        log.info("Start - Validating token: {}", authHeader);
+        String token = redisTemplate.opsForValue().get(authHeader);
+        if (token != null) {
+            log.info("End - Token is invalid: {}", authHeader);
+            return false;
+        }
+        log.info("End - Token is valid: {}", authHeader);
         return true;
     }
 

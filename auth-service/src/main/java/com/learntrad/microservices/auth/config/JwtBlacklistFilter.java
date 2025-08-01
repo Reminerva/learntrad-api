@@ -1,7 +1,6 @@
 package com.learntrad.microservices.auth.config;
 
 import java.io.IOException;
-import java.security.SignatureException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
