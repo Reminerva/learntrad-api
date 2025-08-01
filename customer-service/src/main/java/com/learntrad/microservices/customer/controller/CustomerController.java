@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -27,6 +26,7 @@ import com.learntrad.microservices.shared.annotation.RequireRoles;
 import com.learntrad.microservices.shared.model.response.CommonResponse;
 import com.learntrad.microservices.shared.paging.util.PagingUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 import com.learntrad.microservices.shared.constant.ApiBash;
@@ -44,8 +44,9 @@ public class CustomerController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
-    public ResponseEntity<CommonResponse<CustomerResponse>> createCustomer(@RequestHeader("Authorization") String authHeader, @Valid @RequestBody CustomerRequest customerRequest) {
-        CustomerResponse customerResponse = customerService.createCustomer(authHeader, customerRequest);
+    public ResponseEntity<CommonResponse<CustomerResponse>> createCustomer(HttpServletRequest authHeader, @Valid @RequestBody CustomerRequest customerRequest) {
+        String authHeaderStr = authHeader.getHeader("Authorization");
+        CustomerResponse customerResponse = customerService.createCustomer(authHeaderStr, customerRequest);
         CommonResponse<CustomerResponse> response = CommonResponse.<CustomerResponse>builder()
                 .status(HttpStatus.CREATED.value())
                 .message(ApiBash.CREATE_CUSTOMER_SUCCESS)
@@ -107,7 +108,7 @@ public class CustomerController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     @RequireRoles({ConstantBash.HAS_ROLE_ADMIN})
-    public ResponseEntity<CommonResponse<CustomerResponse>> getCustomerById(@RequestHeader("Authorization") String authHeader, @PathVariable String id) {
+    public ResponseEntity<CommonResponse<CustomerResponse>> getCustomerById(HttpServletRequest authHeader, @PathVariable String id) {
         CustomerResponse customer = customerService.getById(id);
         CommonResponse<CustomerResponse> response = CommonResponse.<CustomerResponse>builder()
                 .status(HttpStatus.OK.value())
@@ -145,8 +146,9 @@ public class CustomerController {
     @GetMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
-    public ResponseEntity<CommonResponse<CustomerResponse>> getMe(@RequestHeader("Authorization") String authHeader) {
-        CustomerResponse customer = customerService.getMe(authHeader);
+    public ResponseEntity<CommonResponse<CustomerResponse>> getMe(HttpServletRequest authHeader) {
+        String authHeaderStr = authHeader.getHeader("Authorization");
+        CustomerResponse customer = customerService.getMe(authHeaderStr);
         CommonResponse<CustomerResponse> response = CommonResponse.<CustomerResponse>builder()
                 .status(HttpStatus.OK.value())
                 .message(ApiBash.GET_CUSTOMER_SUCCESS)
@@ -158,8 +160,9 @@ public class CustomerController {
     @PutMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
-    public ResponseEntity<CommonResponse<CustomerResponse>> updateMe(@RequestHeader("Authorization") String authHeader,  @Valid @RequestBody CustomerRequest customerRequest) {
-        CustomerResponse customer = customerService.updateMe(authHeader, customerRequest);
+    public ResponseEntity<CommonResponse<CustomerResponse>> updateMe(HttpServletRequest authHeader,  @Valid @RequestBody CustomerRequest customerRequest) {
+        String authHeaderStr = authHeader.getHeader("Authorization");
+        CustomerResponse customer = customerService.updateMe(authHeaderStr, customerRequest);
         CommonResponse<CustomerResponse> response = CommonResponse.<CustomerResponse>builder()
                 .status(HttpStatus.OK.value())
                 .message(ApiBash.UPDATE_CUSTOMER_SUCCESS)
@@ -171,8 +174,9 @@ public class CustomerController {
     @DeleteMapping("/me")
     @ResponseStatus(HttpStatus.OK)
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
-    public ResponseEntity<CommonResponse<CustomerResponse>> deleteMe(@RequestHeader("Authorization") String authHeader) {
-        customerService.deleteMe(authHeader);
+    public ResponseEntity<CommonResponse<CustomerResponse>> deleteMe(HttpServletRequest authHeader) {
+        String authHeaderStr = authHeader.getHeader("Authorization");
+        customerService.deleteMe(authHeaderStr);
         CommonResponse<CustomerResponse> response = CommonResponse.<CustomerResponse>builder()
                 .status(HttpStatus.OK.value())
                 .message(ApiBash.DELETE_CUSTOMER_SUCCESS)

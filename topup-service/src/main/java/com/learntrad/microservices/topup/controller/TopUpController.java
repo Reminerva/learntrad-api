@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +26,7 @@ import com.learntrad.microservices.topup.model.request.search.SearchTopUpRequest
 import com.learntrad.microservices.topup.model.response.TopUpResponse;
 import com.learntrad.microservices.topup.service.intrface.TopUpService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -40,9 +40,10 @@ public class TopUpController {
     @GetMapping("/{id}")
     @RequireRoles({ConstantBash.HAS_ROLE_ADMIN})
     public ResponseEntity<CommonResponse<TopUpResponse>> getTopUpById(
-        @RequestHeader("Authorization") String authHeader, 
+        HttpServletRequest httpServletRequest,
         @PathVariable String id
     ) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         TopUpResponse topUpResponse = topUpService.getById(authHeader, id);
         CommonResponse<TopUpResponse> response = CommonResponse.<TopUpResponse>builder()
                 .status(HttpStatus.OK.value())
@@ -100,9 +101,10 @@ public class TopUpController {
     @PostMapping("/me")
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
     public ResponseEntity<CommonResponse<TopUpResponse>> topUpMe(
-        @RequestHeader("Authorization") String authHeader, 
+        HttpServletRequest httpServletRequest,
         @Valid @RequestBody TopUpRequest topUpRequest
     ) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         TopUpResponse TopUpResponse = topUpService.topUpMyBalance(authHeader, topUpRequest);
         CommonResponse<TopUpResponse> response = CommonResponse.<TopUpResponse>builder()
                 .status(HttpStatus.CREATED.value())
@@ -129,8 +131,9 @@ public class TopUpController {
         @RequestParam(required = false, defaultValue = "10") Integer size,
         @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
         @RequestParam(required = false, defaultValue = "asc") String direction,
-        @RequestHeader("Authorization") String authHeader
+        HttpServletRequest httpServletRequest
     ) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         SearchTopUpRequest request = SearchTopUpRequest.builder()
                 .amountMin(amountMin)
                 .amountMax(amountMax)
@@ -160,9 +163,10 @@ public class TopUpController {
     @GetMapping("/mine/{id}")
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
     public ResponseEntity<CommonResponse<TopUpResponse>> getMine(
-        @RequestHeader("Authorization") String authHeader, 
+        HttpServletRequest httpServletRequest,
         @PathVariable String id
     ) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         TopUpResponse topUpResponse = topUpService.getById(authHeader, id);
         CommonResponse<TopUpResponse> response = CommonResponse.<TopUpResponse>builder()
                 .status(HttpStatus.OK.value())
@@ -175,9 +179,10 @@ public class TopUpController {
     @PutMapping("mine/{id}/pay")
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER})
     public ResponseEntity<CommonResponse<TopUpResponse>> payMine(
-        @RequestHeader("Authorization") String authHeader, 
+        HttpServletRequest httpServletRequest,
         @PathVariable String id
     ) {
+        String authHeader = httpServletRequest.getHeader("Authorization");
         TopUpResponse topUpResponse = topUpService.payMyTopUp(authHeader, id);
         CommonResponse<TopUpResponse> response = CommonResponse.<TopUpResponse>builder()
                 .status(HttpStatus.OK.value())
