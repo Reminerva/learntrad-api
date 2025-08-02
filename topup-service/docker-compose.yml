@@ -13,6 +13,11 @@ services:
       - "5438:5432" 
     volumes:
       - topup_postgres_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "topup_postgres_user", "-d", "topup_postgres_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -22,6 +27,11 @@ services:
     command: ["redis-server", "--notify-keyspace-events", "Ex"]
     volumes:
       - topup_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   topup_postgres_db_data:

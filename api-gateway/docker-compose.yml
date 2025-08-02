@@ -1,4 +1,4 @@
-version: '4'
+version: '3.9'
 
 services:
   keycloak_postgres:
@@ -11,6 +11,12 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - keycloak_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "auth_keycloak_postgres_user", "-d", "auth_keycloak_postgres_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:alpine
@@ -19,6 +25,12 @@ services:
       - "6385:6379"
     volumes:
       - redis_auth_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.1
@@ -37,13 +49,25 @@ services:
     volumes:
       - ./docker/keycloak/realms/:/opt/keycloak/data/import/
     depends_on:
-      - keycloak_postgres
+      keycloak_postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/q/health/live"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   loki:
     image: grafana/loki:main
     command: ['-config.file=/etc/loki/local-config.yaml']
     ports:
       - '3100:3100'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   prometheus:
     image: prom/prometheus:v2.46.0
@@ -54,6 +78,11 @@ services:
       - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
       - '9191:9090'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   tempo:
     image: grafana/tempo:2.2.2
@@ -62,8 +91,13 @@ services:
       - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
       - ./docker/tempo/tempo-data:/tmp/tempo
     ports:
-      - '3110:3100' # Tempo
-      - '9411:9411' # zipkin
+      - '3110:3100'
+      - '9411:9411'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   grafana:
     image: grafana/grafana:10.1.0
@@ -75,6 +109,11 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
       - '3000:3000'
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   keycloak_db_data:

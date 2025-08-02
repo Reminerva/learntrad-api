@@ -11,7 +11,12 @@ services:
     ports:
       - "5433:5432" 
     volumes:
-      - customer_postgres_db_data:/var/lib/postgresql/data 
+      - customer_postgres_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "customer_postgres_user", "-d", "customer_postgres_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   customer_postgres_db_data: 

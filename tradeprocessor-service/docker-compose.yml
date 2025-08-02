@@ -13,6 +13,11 @@ services:
       - "5436:5432" 
     volumes:
       - tradeprocessor_postgres_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "tradeprocessor_postgres_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -21,6 +26,11 @@ services:
       - "6380:6379"
     volumes:
       - tradeprocessor_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   tradeprocessor_postgres_db_data:
