@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: customer-postgres
+  name: customer-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-postgres
+  template:
+    metadata:
+      labels:
+        app: customer-postgres
+    spec:
+      containers:
+        - image: postgres:13-alpine
+          name: customer-postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: customer_postgres_db
+            - name: POSTGRES_USER
+              value: customer_postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: customer-postgres-secrets
+                  key: postgres_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: customer-postgres-data
+          # resources:
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "256Mi"
+          #     cpu: "200m"
+      volumes:
+        - name: customer-postgres-data
+          persistentVolumeClaim:
+            claimName: customer-postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: customer-postgres
+  name: customer-postgres
+spec:
+  ports:
+    - port: 5433
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: customer-postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: customer-postgres-secrets
+type: Opaque
+data:
+  postgres_password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: customer-postgres-pv
+spec:
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/customer-postgres
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: customer-postgres-pvc
+spec:
+  volumeName: customer-postgres-pv
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

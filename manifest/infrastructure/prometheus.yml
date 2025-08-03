@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.46.0
+          ports:
+            - containerPort: 9090
+          args:
+            - --enable-feature=exemplar-storage
+            - --config.file=/etc/prometheus/prometheus.yml
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+          # resources:
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "256Mi"
+          #     cpu: "200m"
+      volumes:
+        - name: prometheus-config
+          configMap:
+            name: prometheus-configmap
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  selector:
+    app: prometheus
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-configmap
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 2s
+      evaluation_interval: 2s
+
+    scrape_configs:
+      - job_name: 'api-gateway'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['api-gateway.default.svc.cluster.local:9000'] 
+      - job_name: 'auth-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['auth-service.default.svc.cluster.local:8888']
+            labels:
+              application: 'Auth Service'
+      - job_name: 'marketdata-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['marketdata-service.default.svc.cluster.local:8082']
+            labels:
+              application: 'Market Data Service'
+      - job_name: 'customer-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['customer-service.default.svc.cluster.local:8081']
+            labels:
+              application: 'Customer Service'
+      - job_name: 'trade-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['trade-service.default.svc.cluster.local:8083']
+            labels:
+              application: 'Trade Service'
+      - job_name: 'topup-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['topup-service.default.svc.cluster.local:9091']
+            labels:
+              application: 'Top Up Service'
+      - job_name: 'marketrealtime-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['marketrealtime-service.default.svc.cluster.local:9902']
+            labels:
+              application: 'Market Real Time Service'
+      - job_name: 'notification-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['notification-service.default.svc.cluster.local:9901']
+            labels:
+              application: 'Notification Service'
+      - job_name: 'tradeprocessor-service'
+        metrics_path: '/actuator/prometheus'
+        static_configs:
+          - targets: ['tradeprocessor-service.default.svc.cluster.local:9903']
+            labels:
+              application: 'Trade Processor Service'

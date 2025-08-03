@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: marketdata-timescale
+  name: marketdata-timescale
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketdata-timescale
+  template:
+    metadata:
+      labels:
+        app: marketdata-timescale
+    spec:
+      initContainers:
+        - name: csv-copier
+          image: reksaalamsyah/marketdata-init-image:latest
+          command: ["sh", "-c", "cp -r /data/* /shared"]
+          volumeMounts:
+            - name: shared-data
+              mountPath: /shared
+
+      containers:
+        - image: timescale/timescaledb:latest-pg15
+          name: marketdata-timescale
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: marketdata_timescale_db
+            - name: POSTGRES_USER
+              value: marketdata_timescale_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: marketdata-timescale-secrets
+                  key: postgres_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: marketdata-timescale-data
+            - mountPath: /docker-entrypoint-initdb.d
+              name: shared-data
+
+          # resources:
+          #   requests:
+          #     memory: "512Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "1024Mi"
+          #     cpu: "250m"
+
+      volumes:
+        - name: marketdata-timescale-data
+          persistentVolumeClaim:
+            claimName: marketdata-timescale-pvc
+        - name: shared-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: marketdata-timescale
+  name: marketdata-timescale
+spec:
+  ports:
+    - port: 5434
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: marketdata-timescale
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: marketdata-timescale-secrets
+type: Opaque
+data:
+  postgres_password: cGFzc3dvcmQ=
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: marketdata-timescale-pv
+spec:
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/marketdata-timescale
+    type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: marketdata-timescale-pvc
+spec:
+  volumeName: marketdata-timescale-pv
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

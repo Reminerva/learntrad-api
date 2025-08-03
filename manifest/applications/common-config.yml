@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-config
+data:
+  LOKI_URL: "http://loki.default.svc.cluster.local:3100/loki/api/v1/push"
+  MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: "http://tempo.default.svc.cluster.local:9411"
+  SPRING_KAFKA_BOOTSTRAP-SERVERS: "http://broker.default.svc.cluster.local:29092"
+  AUTH_SERVICE_URL: "http://auth-service.default.svc.cluster.local:8888"
+  CUSTOMER_SERVICE_URL: "http://customer-service.default.svc.cluster.local:8081"
+  MARKETDATA_SERVICE_URL: "http://marketdata-service.default.svc.cluster.local:8082"
+  TRADE_SERVICE_URL: "http://trade-service.default.svc.cluster.local:8083"
+  TOPUP_SERVICE_URL: "http://topup-service.default.svc.cluster.local:8084"
+  API_GATEWAY_URL: "http://localhost:9000"
+  CORS_FRONTEND_URL: "default"

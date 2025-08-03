@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: reksaalamsyah/notification-service:latest
+          ports:
+            - containerPort: 9901
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SPRING_KAFKA_BOOTSTRAP-SERVERS
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: LOKI_URL
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+                  
+            - name: MAIL_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: MAIL_PORT
+            - name: MAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: MAIL_USERNAME
+            - name: MAIL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: MAIL_PASSWORD
+            - name: MAIL_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: MAIL_EMAIL
+
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -XX:+UseSerialGC -XX:ReservedCodeCacheSize=96M"
+            - name: BPL_JVM_THREAD_COUNT
+              value: "20"
+            - name: BPL_JVM_HEAD_ROOM
+              value: "0"
+
+          # resources:
+          #   requests:
+          #     memory: "300Mi"
+          #     cpu: "25m"
+          #   limits:
+          #     memory: "400Mi"
+          #     cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - protocol: TCP
+      port: 9901
+      targetPort: 9901

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: marketrealtime-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: marketrealtime-service
+  template:
+    metadata:
+      labels:
+        app: marketrealtime-service
+    spec:
+      containers:
+        - name: marketrealtime-service
+          image: reksaalamsyah/marketrealtime-service:latest
+          ports:
+            - containerPort: 9902
+          env:
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SPRING_KAFKA_BOOTSTRAP-SERVERS
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: LOKI_URL
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+                  
+            - name: TWELVE_DATA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: TWELVE_DATA_API_KEY
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -XX:+UseSerialGC -XX:ReservedCodeCacheSize=96M"
+            - name: BPL_JVM_THREAD_COUNT
+              value: "20"
+            - name: BPL_JVM_HEAD_ROOM
+              value: "0"
+          # resources:
+          #   requests:
+          #     memory: "256Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "384Mi"
+          #     cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: marketrealtime-service
+spec:
+  selector:
+    app: marketrealtime-service
+  ports:
+    - protocol: TCP
+      port: 9902
+      targetPort: 9902

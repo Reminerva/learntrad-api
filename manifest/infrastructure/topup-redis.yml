@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: topup-redis
+  labels:
+    app: topup-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: topup-redis
+  template:
+    metadata:
+      labels:
+        app: topup-redis
+    spec:
+      containers:
+        - name: topup-redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /data
+              name: topup-redis-data
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+      volumes:
+        - name: topup-redis-data
+          persistentVolumeClaim:
+            claimName: topup-redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: topup-redis
+  labels:
+    app: topup-redis
+spec:
+  selector:
+    app: topup-redis
+  ports:
+    - name: redis
+      port: 6381
+      targetPort: 6379
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: topup-redis-pv
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/topup-redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: topup-redis-pvc
+spec:
+  volumeName: topup-redis-pv
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

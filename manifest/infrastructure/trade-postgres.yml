@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: trade-postgres
+  name: trade-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trade-postgres
+  template:
+    metadata:
+      labels:
+        app: trade-postgres
+    spec:
+      containers:
+        - image: postgres:13-alpine
+          name: trade-postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: trade_postgres_db
+            - name: POSTGRES_USER
+              value: trade_postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: trade-postgres-secrets
+                  key: postgres_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: trade-postgres-data
+          # resources:
+          #   requests:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "256Mi"
+          #     cpu: "200m"
+      volumes:
+        - name: trade-postgres-data
+          persistentVolumeClaim:
+            claimName: trade-postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: trade-postgres
+  name: trade-postgres
+spec:
+  ports:
+    - port: 5435
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: trade-postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: trade-postgres-secrets
+type: Opaque
+data:
+  postgres_password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: trade-postgres-pv
+spec:
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/trade-postgres
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: trade-postgres-pvc
+spec:
+  volumeName: trade-postgres-pv
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

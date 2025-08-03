@@ -1,0 +1,93 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway
+          image: reksaalamsyah/api-gateway:latest
+          ports:
+            - containerPort: 9000
+          env:
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: LOKI_URL
+                  name: common-config
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+            - name: AUTH_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: AUTH_SERVICE_URL
+                  name: common-config
+            - name: CUSTOMER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: CUSTOMER_SERVICE_URL
+                  name: common-config
+            - name: MARKETDATA_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: MARKETDATA_SERVICE_URL
+                  name: common-config
+            - name: TRADE_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: TRADE_SERVICE_URL
+                  name: common-config
+            - name: TOPUP_SERVICE_URL
+              valueFrom:  
+                configMapKeyRef:
+                  key: TOPUP_SERVICE_URL
+                  name: common-config
+            - name: CORS_FRONTEND_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: CORS_FRONTEND_URL
+                  name: common-config
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -XX:+UseSerialGC -XX:ReservedCodeCacheSize=96M"
+            - name: BPL_JVM_THREAD_COUNT
+              value: "20"
+            - name: BPL_JVM_HEAD_ROOM
+              value: "0"
+
+          # resources:
+          #   requests:
+          #     memory: "256Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "384Mi"
+          #     cpu: "200m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+spec:
+  selector:
+    app: api-gateway
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 9000

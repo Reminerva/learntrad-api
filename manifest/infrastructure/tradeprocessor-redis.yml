@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tradeprocessor-redis
+  labels:
+    app: tradeprocessor-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tradeprocessor-redis
+  template:
+    metadata:
+      labels:
+        app: tradeprocessor-redis
+    spec:
+      containers:
+        - name: tradeprocessor-redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /data
+              name: tradeprocessor-redis-data
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+      volumes:
+        - name: tradeprocessor-redis-data
+          persistentVolumeClaim:
+            claimName: tradeprocessor-redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tradeprocessor-redis
+  labels:
+    app: tradeprocessor-redis
+spec:
+  selector:
+    app: tradeprocessor-redis
+  ports:
+    - name: redis
+      port: 6380
+      targetPort: 6379
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tradeprocessor-redis-pv
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/tradeprocessor-redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tradeprocessor-redis-pvc
+spec:
+  volumeName: tradeprocessor-redis-pv
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

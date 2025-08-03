@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+        - name: auth-service
+          image: reksaalamsyah/auth-service:latest
+          ports:
+            - containerPort: 8888
+          env:
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI
+                  name: auth-service-config
+            - name: SPRING_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_REDIS_HOST
+                  name: auth-service-config
+            - name: SPRING_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: SPRING_REDIS_PORT
+                  name: auth-service-config
+            - name: KEYCLOAK_REALM
+              valueFrom:
+                configMapKeyRef:
+                  key: KEYCLOAK_REALM
+                  name: auth-service-config
+            - name: KEYCLOAK_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: KEYCLOAK_URL
+                  name: auth-service-config
+
+            - name: CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: CLIENT_ID
+                  name: shared-secrets
+            - name: CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: CLIENT_SECRET
+                  name: shared-secrets
+
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: LOKI_URL
+                  name: common-config
+            - name: API_GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: API_GATEWAY_URL
+                  name: common-config
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -XX:+UseSerialGC -XX:ReservedCodeCacheSize=96M"
+            - name: BPL_JVM_THREAD_COUNT
+              value: "20"
+            - name: BPL_JVM_HEAD_ROOM
+              value: "0"
+
+          # resources:
+          #   requests:
+          #     memory: "256Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "384Mi"
+          #     cpu: "100m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - protocol: TCP
+      port: 8888
+      targetPort: 8888
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-config
+data:
+  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI: "http://keycloak.default.svc.cluster.local:8282/realms/spring-learntrad-microservices-security-realm"
+  SPRING_REDIS_HOST: "auth-redis.default.svc.cluster.local"
+  SPRING_REDIS_PORT: "6385"
+  KEYCLOAK_REALM: "spring-learntrad-microservices-security-realm"
+  KEYCLOAK_URL: "http://keycloak.default.svc.cluster.local:8282"
+  CLIENT_ID: "spring-learntrad-microservices-client-id"
+  CLIENT_SECRET: "VunWns7UCUUn790wpJmtcXvsoryZAj8v"

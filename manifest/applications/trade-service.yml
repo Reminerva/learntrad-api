@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trade-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trade-service
+  template:
+    metadata:
+      labels:
+        app: trade-service
+    spec:
+      containers:
+        - name: trade-service
+          image: reksaalamsyah/trade-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: trade-config
+                  key: SPRING_DATASOURCE_USERNAME
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: trade-config
+                  key: SPRING_DATASOURCE_URL
+
+            - name: CUSTOMER_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: CUSTOMER_SERVICE_URL
+                  name: common-config
+            - name: MARKETDATA_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: MARKETDATA_SERVICE_URL
+                  name: common-config
+            - name: API_GATEWAY_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: API_GATEWAY_URL
+                  name: common-config
+
+            - name: SPRING_KAFKA_BOOTSTRAP-SERVERS
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: SPRING_KAFKA_BOOTSTRAP-SERVERS
+            - name: LOKI_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: common-config
+                  key: LOKI_URL
+            - name: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  key: MANAGEMENT_ZIPKIN_TRACING_ENDPOINT
+                  name: common-config
+                  
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: shared-secrets
+                  key: SPRING_DATASOURCE_PASSWORD
+                  
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=80.0 -XX:InitialRAMPercentage=40.0 -XX:+UseSerialGC -XX:ReservedCodeCacheSize=96M"
+            - name: BPL_JVM_THREAD_COUNT
+              value: "20"
+            - name: BPL_JVM_HEAD_ROOM
+              value: "0"
+
+          # resources:
+          #   requests:
+          #     memory: "300Mi"
+          #     cpu: "100m"
+          #   limits:
+          #     memory: "400Mi"
+          #     cpu: "150m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trade-service
+spec:
+  selector:
+    app: trade-service
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: trade-config
+data:
+  SPRING_DATASOURCE_USERNAME: trade_postgres_user
+  SPRING_DATASOURCE_URL: jdbc:postgresql://trade-postgres.default.svc.cluster.local:5435/trade_postgres_db

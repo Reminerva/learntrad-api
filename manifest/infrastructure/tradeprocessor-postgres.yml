@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tradeprocessor-postgres
+  name: tradeprocessor-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tradeprocessor-postgres
+  template:
+    metadata:
+      labels:
+        app: tradeprocessor-postgres
+    spec:
+      containers:
+        - image: postgres:13-alpine
+          name: tradeprocessor-postgres
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: tradeprocessor_postgres_db
+            - name: POSTGRES_USER
+              value: tradeprocessor_postgres_user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tradeprocessor-postgres-secrets
+                  key: postgres_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: tradeprocessor-postgres-data
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+      volumes:
+        - name: tradeprocessor-postgres-data
+          persistentVolumeClaim:
+            claimName: tradeprocessor-postgres-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: tradeprocessor-postgres
+  name: tradeprocessor-postgres
+spec:
+  ports:
+    - port: 5436
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: tradeprocessor-postgres
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: tradeprocessor-postgres-secrets
+type: Opaque
+data:
+  postgres_password: cGFzc3dvcmQ=
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: tradeprocessor-postgres-pv
+spec:
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/tradeprocessor-postgres
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tradeprocessor-postgres-pvc
+spec:
+  volumeName: tradeprocessor-postgres-pv
+  storageClassName: 'standard'
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

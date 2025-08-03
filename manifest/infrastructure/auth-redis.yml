@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-redis
+  labels:
+    app: auth-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-redis
+  template:
+    metadata:
+      labels:
+        app: auth-redis
+    spec:
+      containers:
+        - name: auth-redis
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - mountPath: /data
+              name: auth-redis-data
+          # resources:
+          #   requests:
+          #     memory: "64Mi"
+          #     cpu: "50m"
+          #   limits:
+          #     memory: "128Mi"
+          #     cpu: "100m"
+      volumes:
+        - name: auth-redis-data
+          persistentVolumeClaim:
+            claimName: auth-redis-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-redis
+  labels:
+    app: auth-redis
+spec:
+  selector:
+    app: auth-redis
+  ports:
+    - name: redis
+      port: 6385
+      targetPort: 6379
+      protocol: TCP
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: auth-redis-pv
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  hostPath:
+    path: /data/auth-redis
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: auth-redis-pvc
+spec:
+  volumeName: auth-redis-pv
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
