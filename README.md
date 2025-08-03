@@ -78,20 +78,20 @@ Comprehensive XAUUSD data is available from 2004 to August 2025, with a minimum 
 Other business-related data such as customer profiles, top-ups, and trades are stored in PostgreSQL.
 
 ### Live Integration and Secure Access
-The application integrates with the Twelve Data API to provide real-time market prices. Customers can access this data securely using access tokens, based on their authorization level.
+The application integrates with the Twelve Data API to provide real-time market prices. Customers have the ability to access this data securely using access tokens, based on their authorization level.
 
 ### Customer Experience and Profile Management
 Users can register, create and update their customer profiles, and retrieve their personal data securely.
 Admins have full access to view all customer information.
 
 ### Trading Simulation
-Customers can:
+Customers are able to:
 * Execute market orders and place pending orders (buy stop, buy limit, sell stop, sell limit)
 * Modify existing trades and retrieve their own trade data
 * All trades are processed and analyzed by the trade-processor-service to determine their status (running, profit, or loss)
 
 ### Top-Up System
-Customers can top up their balance, receive dummy payment confirmations, and view their own top-up data.
+Users may top up their balance, receive dummy payment confirmations, and view their own top-up data.
 Admins have access to all top-up records across the platform.
 
 ### Quiz Generation with Anonymized Market Data
@@ -102,7 +102,7 @@ One of LearnTrad’s core features is the Fetch Quiz, which delivers anonymized 
 * The goal is to encourage customers to think independently without "cheating" by referencing actual historical data.
 
 ### Multi-Timeframe Data Access
-Customers can access historical candlestick data across multiple timeframes:
+This feature allows customers to access historical candlestick data across multiple timeframes:
 1min, 5min, 15min, 30min, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1mo
 
 ---
@@ -144,6 +144,9 @@ Before running the application, make sure you have the following installed on yo
 - **Java 21 or later** – Required to run Spring Boot services.
 - **Git** – To clone the project repository.
 - **Docker** – Required if running with Kubernetes or containerized services.
+- **Twelve Data API key** – Used for fetching financial time series data in the marketdata-service. Visit [https://twelvedata.com/](https://twelvedata.com/) create account and get the API key.
+- **Mailtrap** – For capturing outbound emails in a safe testing environment (used in notification-service). Visit [https://mailtrap.io/](https://mailtrap.io/).
+
 
 ### Additional for **Option B: Running with Kubernetes**
 - **kubectl** – Command-line tool for interacting with Kubernetes clusters.
