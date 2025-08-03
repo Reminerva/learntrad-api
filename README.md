@@ -16,6 +16,16 @@ This system is developed for educational purposes, and serves as a scalable simu
 
 ## Table of Contents
 1.  [LearnTrad Features](#1-learntrad-features)
+    * [Secure by Design](#secure-by-design)
+    * [Event-Driven Architecture](#event-driven-architecture)
+    * [Powerful Monitoring Stack](#powerful-monitoring-stack)
+    * [Rich Historical Market Data](#rich-historical-market-data)
+    * [Live Integration and Secure Access](#live-integration-and-secure-access)
+    * [Customer Experience and Profile Management](#customer-experience-and-profile-management)
+    * [Trading Simulation](#trading-simulation)
+    * [Top-Up System](#top-up-system)
+    * [Quiz Generation with Anonymized Market Data](#quiz-generation-with-anonymized-market-data)
+    * [Multi-Timeframe Data Access](#multi-timeframe-data-access)
 2.  [API Documentation (Swagger UI)](#2-api-documentation-swagger-ui)
 3.  [Getting Started](#3-getting-started)
     * [Prerequisites](#prerequisites)
@@ -67,10 +77,10 @@ Full observability is provided through the Grafana stack, including:
 Comprehensive XAUUSD data is available from 2004 to August 2025, with a minimum resolution of 1 minute. It is stored in TimescaleDB for efficient time-series querying.
 Other business-related data such as customer profiles, top-ups, and trades are stored in PostgreSQL.
 
-### Live Integration & Secure Access
+### Live Integration and Secure Access
 The application integrates with the Twelve Data API to provide real-time market prices. Customers can access this data securely using access tokens, based on their authorization level.
 
-### Customer Experience & Profile Management
+### Customer Experience and Profile Management
 Users can register, create and update their customer profiles, and retrieve their personal data securely.
 Admins have full access to view all customer information.
 
