@@ -11,9 +11,42 @@ A key feature of this platform is the Quiz Fetching system, where customers rece
 This system is developed for educational purposes, and serves as a scalable simulation of real-world trading services and challenges.
 
 **App Architecture** :
+
 **ERD** : 
 
-## LearnTrad Features
+## Table of Contents
+1.  [LearnTrad Features](#1-learntrad-features)
+2.  [API Documentation (Swagger UI)](#2-api-documentation-swagger-ui)
+3.  [Getting Started](#3-getting-started)
+    * [Prerequisites](#prerequisites)
+    * [Recommended System Requirements](#recommended-system-requirements)
+    * [Environment Setup](#environment-setup)
+    * [Running the Application](#running-the-application)
+        * [Option A: Running Locally using Batch Script](#option-a-running-locally-using-batch-script)
+        * [Option B: Running with Kubernetes](#option-b-running-with-kubernetes)
+    * [Postman Collection](#postman-collection)
+4.  [Common Responses](#4-common-responses)
+5.  [Roles and Authorization](#5-roles-and-authorization)
+6.  [API Endpoints](#6-api-endpoints)
+    * [API Gateway](#api-gateway)
+    * [Authentication](#authentication)
+    * [Customer Service](#customer-service)
+    * [Market Data Service](#market-data-service)
+    * [Trade Service](#trade-service)
+    * [Top Up Service](#top-up-service)
+    * [Market Realtime Service](#market-realtime-service)
+    * [Trade Processor Service](#trade-processor-service)
+    * [Notification Service](#notification-service)
+7. [Models](#7-models)
+    * [Request Models](#request-models)
+        * [LoginRequest](#loginrequest)
+        * [RegisterRequest](#registerrequest)
+        * [RefreshTokenRequest](#refreshtokenrequest)
+    * [Response Models](#response-models)
+
+---
+
+## 1. LearnTrad Features
 
 ### Secure by Design
 Utilizing an API Gateway as the single entry point, all requests are filtered before being routed to the appropriate service. The gateway includes a circuit breaker (Resilience4j) to improve fault tolerance.
@@ -62,38 +95,9 @@ One of LearnTrad’s core features is the Fetch Quiz, which delivers anonymized 
 Customers can access historical candlestick data across multiple timeframes:
 1min, 5min, 15min, 30min, 1h, 2h, 4h, 6h, 8h, 12h, 1d, 3d, 1w, 1mo
 
-## Table of Contents
-1.  [API Documentation (Swagger UI)](#1-api-documentation-swagger-ui)
-2.  [Getting Started](#2-getting-started)
-    * [Prerequisites](#prerequisites)
-    * [Recommended System Requirements](#recommended-system-requirements)
-    * [Environment Setup](#environment-setup)
-    * [Running the Application](#running-the-application)
-        * [Option A: Running Locally using Batch Script](#option-a-running-locally-using-batch-script)
-        * [Option B: Running with Kubernetes](#option-b-running-with-kubernetes)
-    * [Postman Collection](#postman-collection)
-3.  [Common Responses](#3-common-responses)
-4.  [Roles and Authorization](#4-roles-and-authorization)
-5.  [API Endpoints](#5-api-endpoints)
-    * [API Gateway](#api-gateway)
-    * [Authentication](#authentication)
-    * [Customer Service](#customer-service)
-    * [Market Data Service](#market-data-service)
-    * [Trade Service](#trade-service)
-    * [Top Up Service](#top-up-service)
-    * [Market Realtime Service](#market-realtime-service)
-    * [Trade Processor Service](#trade-processor-service)
-    * [Notification Service](#notification-service)
-6. [Models](#6-models)
-    * [Request Models](#request-models)
-        * [LoginRequest](#loginrequest)
-        * [RegisterRequest](#registerrequest)
-        * [RefreshTokenRequest](#refreshtokenrequest)
-    * [Response Models](#response-models)
-
 ---
 
-## 1. API Documentation (Swagger UI)
+## 2. API Documentation (Swagger UI)
 
 You can explore the full API documentation, including all available endpoints, request models and parameters, and response models, directly through **Swagger UI**.
 
@@ -108,7 +112,7 @@ This interactive documentation allows you to:
 
 ---
 
-## 2. Getting Started
+## 3. Getting Started
 
 You can run the microservices using one of the following options:
 
@@ -323,7 +327,7 @@ You’ll need to configure environment variables before running the cluster:
     ./kind/delete-kind-cluster.sh
     ```
 
-## 3. Common Responses
+## 4. Common Responses
 
 All API responses are wrapped in a `CommonResponse` object with the following structure:
 
@@ -347,7 +351,7 @@ Error responses will also follow this structure, but with a non-2xx code and an 
 
 ---
 
-## 4. Roles and Authorization
+## 5. Roles and Authorization
 The API implements role-based access control using Spring Security's @PreAuthorize annotation. The following roles are defined:
 
 **ADMIN:** Has full access to all API endpoints.
@@ -360,7 +364,7 @@ Authorization: Bearer <your_jwt_access_token>
 
 ---
 
-## 5. API Endpoints
+## 6. API Endpoints
 
 This section details all the available API endpoints. All successful responses will follow the `CommonResponse` structure.
 
@@ -458,3 +462,4 @@ This is the main entry point for the API. It is responsible for routing requests
             "paging": null
         }
 </details>
+
