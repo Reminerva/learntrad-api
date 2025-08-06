@@ -24,6 +24,11 @@ public class ConstantBash {
 
     public static final String INVALID_DIRECTION = "Invalid direction! Direction must be 'Desc' or 'Asc'";
 
+    public static final String INVALID_QUIZ_PRICE_AT_AND_STOPLOSS_AT = "Invalid quiz answer values! 'priceAt' cannot be equal to 'stopLossAt'!";
+    public static final String INVALID_QUIZ_PRICE_AT_AND_TAKE_PROFIT_AT = "Invalid quiz answer values! 'priceAt' cannot be equal to 'takeProfitAt'!";
+    public static final String INVALID_QUIZ_STOPLOSS_AT_AND_TAKE_PROFIT_AT = "Invalid quiz answer values! 'stopLossAt' cannot be equal to 'takeProfitAt'!";
+    public static final String QUIZ_ALREADY_ANSWERED = "Quiz has already been answered!";
+
     public static String getBuyInvalidMessage(Object priceAt, Object stopLossAt, Object takeProfitAt) {
         return String.format("""
         Invalid buy values! 'priceAt' must be greater than 'stopLossAt' and less than 'takeProfitAt'. (stopLossAt < priceAt < takeProfitAt). In this case: priceAt: %s stopLossAt: %s takeProfitAt: %s""", priceAt, stopLossAt, takeProfitAt);

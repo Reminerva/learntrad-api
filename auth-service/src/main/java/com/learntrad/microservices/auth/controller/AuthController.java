@@ -8,7 +8,9 @@ import com.learntrad.microservices.auth.model.request.RefreshTokenRequest;
 import com.learntrad.microservices.auth.model.request.RegisterRequest;
 import com.learntrad.microservices.auth.model.response.TokenResponse;
 import com.learntrad.microservices.auth.service.intrfcae.AuthService;
+import com.learntrad.microservices.shared.annotation.RequireRoles;
 import com.learntrad.microservices.shared.constant.ApiBash;
+import com.learntrad.microservices.shared.constant.ConstantBash;
 import com.learntrad.microservices.shared.model.response.CommonResponse;
 
 import jakarta.validation.Valid;
@@ -49,6 +51,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @RequireRoles({ConstantBash.HAS_ROLE_ADMIN, ConstantBash.HAS_ROLE_CUSTOMER})
     public ResponseEntity<CommonResponse<TokenResponse>> logout(@RequestHeader("Authorization") String authHeader) {
         authService.logout(authHeader);
         return ResponseEntity.ok(CommonResponse.<TokenResponse>builder()
@@ -58,6 +61,7 @@ public class AuthController {
     }
     
     @PostMapping("/refresh-token")
+    @RequireRoles({ConstantBash.HAS_ROLE_ADMIN, ConstantBash.HAS_ROLE_CUSTOMER})
     public ResponseEntity<CommonResponse<TokenResponse>> refreshToken(@RequestBody RefreshTokenRequest request) {
         TokenResponse response = authService.refreshToken(request);
         return ResponseEntity.ok(CommonResponse.<TokenResponse>builder()

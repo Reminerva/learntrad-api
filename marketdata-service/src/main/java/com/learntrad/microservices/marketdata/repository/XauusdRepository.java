@@ -15,6 +15,7 @@ import com.learntrad.microservices.marketdata.entity.XauusdEntity;
 @Repository
 public interface XauusdRepository extends JpaRepository<XauusdEntity, Instant>, CustomXauusdRepository, JpaSpecificationExecutor<XauusdEntity> {
 
+    Optional<XauusdEntity> findTopByOrderByTimeBucketStartAsc();
     Optional<XauusdEntity> findTopByOrderByTimeBucketStartDesc();
     Optional<XauusdEntity> findByTimeBucketStart(Instant timeBucketStart);
 
@@ -55,5 +56,21 @@ public interface XauusdRepository extends JpaRepository<XauusdEntity, Instant>, 
         @Param("start") Instant start,
         @Param("end") Instant end
     );
+
+    @Query(value = """
+        SELECT * FROM m_xauusd
+        WHERE time_bucket_start BETWEEN :start AND :end
+        ORDER BY high DESC
+        LIMIT 1
+        """, nativeQuery = true)
+    Optional<XauusdEntity> findTopByHighBetween(@Param("start") Instant start, @Param("end") Instant end);
+
+    @Query(value = """
+        SELECT * FROM m_xauusd
+        WHERE time_bucket_start BETWEEN :start AND :end
+        ORDER BY low ASC
+        LIMIT 1
+        """, nativeQuery = true)
+    Optional<XauusdEntity> findTopByLowBetween(@Param("start") Instant start, @Param("end") Instant end);
 
 }

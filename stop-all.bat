@@ -39,7 +39,7 @@ set "DOCKER_COMPOSE_FILE=%FULL_DIR%\docker-compose.yml"
 if exist "%DOCKER_COMPOSE_FILE%" (
     echo Shutting down docker-compose for %SERVICE_DIR%...
     pushd "%FULL_DIR%"
-    docker-compose down
+    docker-compose down -v
     popd
 )
 exit /b

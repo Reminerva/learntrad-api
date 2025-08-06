@@ -49,11 +49,11 @@ public class XauusdMarketDataBootstrapLoader {
             Instant start = latestTime.plus(i * batchSize + 1 + i, ChronoUnit.MINUTES);
             Instant end = start.plus(batchSize, ChronoUnit.MINUTES);
 
-            List<XauusdEntity> historicalData = twelveDataClient.fetchHistorical1MinData(start, end, EMarketDataType.XAUUSD, XauusdEntity.class);
-            log.info("Fetched {} rows from historical fetch from {} to {}.", historicalData.size(), start, end);
-            xauusdRepository.saveAll(historicalData);
-            log.info("f {} rows from historical fetch.", historicalData.size());
-            totalDataFetched += historicalData.size();
+            // List<XauusdEntity> historicalData = twelveDataClient.fetchHistorical1MinData(start, end, EMarketDataType.XAUUSD, XauusdEntity.class);
+            // log.info("Fetched {} rows from historical fetch from {} to {}.", historicalData.size(), start, end);
+            // xauusdRepository.saveAll(historicalData);
+            // log.info("f {} rows from historical fetch.", historicalData.size());
+            // totalDataFetched += historicalData.size();
         }
         log.info("Minutes gap: {}. Total data fetched: {}", minutesGap, totalDataFetched );
 

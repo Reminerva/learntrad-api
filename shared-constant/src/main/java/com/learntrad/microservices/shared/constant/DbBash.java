@@ -10,6 +10,7 @@ public class DbBash {
     public static final String TRADE_PROCESSED_TABLE = "m_trade_processed";
     public static final String TRADE_PROCESSED_USER_TABLE = "m_trade_processed_user";
     public static final String TOP_UP_TABLE = "t_top_up";
+    public static final String QUIZ_TABLE = "t_quiz";
 
     public static final String CUSTOMER_NOT_FOUND = "Customer not found!";
     public static final String CUSTOMER_HAS_BEEN_DELETED = "Customer has been deleted!";
@@ -20,6 +21,9 @@ public class DbBash {
     public static final String LATEST_TICK_NOT_FOUND = "Latest tick not found!";
 
     public static final String TOP_UP_NOT_FOUND = "Top up not found!";
+
+    public static final String QUIZ_NOT_FOUND = "Quiz information not found!";
+    public static final String QUIZ_UNAUTHORIZED = "You are not authorized to access this quiz information!";
 
     public static final String TRADE_PROCESSED_USER_NOT_FOUND = "Trade processed user not found!";
 }

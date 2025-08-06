@@ -108,23 +108,26 @@ public class MarketDataServiceImpl implements MarketDataService{
         try {
             EMarketDataType marketDataTypeEnum = EMarketDataType.findByDescription(marketDataType);
             log.info("Start - Fetching latest tick for: {}", marketDataTypeEnum);
-            Optional<XauusdEntity> latestTick = xauusdRepository.findTopByOrderByTimeBucketStartDesc();
-            if (latestTick.isEmpty()) {
-                throw new RuntimeException(DbBash.LATEST_TICK_NOT_FOUND);
+            switch (marketDataTypeEnum) {
+                case XAUUSD:
+                    Optional<XauusdEntity> latestTick = xauusdRepository.findTopByOrderByTimeBucketStartDesc();
+                    if (latestTick.isEmpty()) {
+                        throw new RuntimeException(DbBash.LATEST_TICK_NOT_FOUND);
+                    }
+                    log.info("End - Fetching latest tick for: {}", marketDataTypeEnum);
+                    SearchMarketDataRequest request = SearchMarketDataRequest.builder()
+                            .timeBucketStartMin(latestTick.get().getTimeBucketStart())
+                            .timeBucketStartMax(latestTick.get().getTimeBucketStart())
+                            .build();
+
+                    return toMarketDataResponse(
+                        List.of(latestTick.get()), 
+                        request, 
+                        marketDataTypeEnum
+                        );
+                default: 
+                    throw new UnsupportedOperationException(ConstantBash.INVALID_ENUM + marketDataType);
             }
-            log.info("End - Fetching latest tick for: {}", marketDataTypeEnum);
-            SearchMarketDataRequest request = SearchMarketDataRequest.builder()
-                    .timeBucketStartMin(latestTick.get().getTimeBucketStart())
-                    .timeBucketStartMax(latestTick.get().getTimeBucketStart())
-                    .build();
-            return switch (marketDataTypeEnum) {
-                case XAUUSD ->  toMarketDataResponse(
-                    List.of(latestTick.get()), 
-                    request, 
-                    marketDataTypeEnum
-                    );
-                default -> throw new UnsupportedOperationException(ConstantBash.INVALID_ENUM + marketDataType);
-            };
         } catch (Exception e) {
             log.error("Error while fetching latest tick for: {}", marketDataType, e);
             throw new RuntimeException(e);
@@ -163,6 +166,7 @@ public class MarketDataServiceImpl implements MarketDataService{
     }
 
     private MarketDataResponse toMarketDataResponse(List<?> data, SearchMarketDataRequest request, EMarketDataType marketDataType) {
+        log.info("Start - Mapping data for: {}, bucketStartMin: {}, bucketStartMax: {}", marketDataType, request.getTimeBucketStartMin(), request.getTimeBucketStartMax());
         return MarketDataResponse.builder()
                 .dataCount((long) data.size())
                 .timeBucketStartMin(request.getTimeBucketStartMin())

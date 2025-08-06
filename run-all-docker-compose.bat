@@ -4,6 +4,17 @@ setlocal ENABLEDELAYEDEXPANSION
 
 set BASEDIR=%cd%
 
+:: Docker compose down
+call :dockerDown "marketdata-service"
+call :dockerDown "trade-service"
+call :dockerDown "api-gateway"
+call :dockerDown "auth-service"
+call :dockerDown "customer-service"
+call :dockerDown "notification-service"
+call :dockerDown "topup-service"
+call :dockerDown "tradeprocessor-service"
+call :dockerDown "marketrealtime-service"
+
 :: Kill ports if already used
 call :killPort 9000
 call :killPort 8282
@@ -43,7 +54,7 @@ call :dockerUp "topup-service"
 call :dockerUp "tradeprocessor-service"
 call :dockerUp "marketrealtime-service"
 
-:: Docker compose
+:: Start Services
 call :serviceStartSpecific "trade_postgres"
 call :serviceStartSpecific "zookeeper"
 call :serviceStartSpecific "broker"
@@ -55,6 +66,21 @@ call :serviceStartSpecific "marketdata_timescale"
 
 goto :eof
 
+:dockerDown
+set "SERVICE_DIR=%~1"
+set "FULL_DIR=%BASEDIR%\%SERVICE_DIR%"
+set "DOCKER_COMPOSE_FILE=%FULL_DIR%\docker-compose.yml"
+set "CONTAINER_NAME=%SERVICE_DIR%_container"
+
+if exist "%DOCKER_COMPOSE_FILE%" (
+    echo Running docker-compose down in %SERVICE_DIR%...
+    pushd "%FULL_DIR%"
+    docker-compose down -v
+    popd
+)
+
+exit /b
+
 :dockerUp
 set "SERVICE_DIR=%~1"
 set "FULL_DIR=%BASEDIR%\%SERVICE_DIR%"
@@ -64,6 +90,7 @@ set "CONTAINER_NAME=%SERVICE_DIR%_container"
 if exist "%DOCKER_COMPOSE_FILE%" (
     echo Running docker-compose in %SERVICE_DIR%...
     pushd "%FULL_DIR%"
+    docker-compose down
     docker-compose up -d
     
     popd

@@ -6,8 +6,7 @@ import java.util.List;
 import com.learntrad.microservices.shared.constant.ConstantBash;
 
 public enum EMarketDataType {
-    XAUUSD("XAUUSD", 100, "XAU/USD"),
-    NASDAQ("NASDAQ", 100, "");
+    XAUUSD("XAUUSD", 100, "XAU/USD");
 
     private final String description;
     private final Integer multiplier;

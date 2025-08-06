@@ -1,4 +1,5 @@
 com\learntrad\microservices\Main.class
+com\learntrad\microservices\shared\constant\enumerated\ENSize.class
 com\learntrad\microservices\shared\constant\enumerated\EPaymentType.class
 com\learntrad\microservices\shared\constant\ConstantBash.class
 com\learntrad\microservices\shared\constant\ApiBash.class

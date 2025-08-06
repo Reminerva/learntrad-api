@@ -10,7 +10,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.learntrad.microservices.auth.util.JwtUtil;
+import com.learntrad.microservices.auth.util.AuthJwtUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,7 +24,7 @@ public class JwtBlacklistFilter extends OncePerRequestFilter {
     private StringRedisTemplate redisTemplate;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private AuthJwtUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,

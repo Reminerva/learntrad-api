@@ -9,6 +9,7 @@ public class ApiBash {
     public static final String MARKET_DATA = "/api/market-data";
     public static final String TOP_UP = "/api/top-up";
     public static final String AUTH_API = "/api/auth";
+    public static final String QUIZ = "/quiz";
 
     public static final String REGISTER_SUCCESS = "Register success!";
     public static final String LOGIN_SUCCESS = "Login success!";
@@ -33,6 +34,10 @@ public class ApiBash {
     public static final String FETCH_TICK_SUCCESS = "Fetch data tick success!";
     public static final String FETCH_RANGE_SUCCESS = "Fetch data range success!";
     public static final String FETCH_BY_TIME_BUCKET_SUCCESS = "Fetch data by time bucket success!";
+
+    public static final String GENERATE_QUIZ_SUCCESS = "Generate quiz success!";
+    public static final String FETCH_QUIZ_SUCCESS = "Fetch quiz success!";
+    public static final String ANSWER_QUIZ_SUCCESS = "Answer quiz success!";
     
     public static final String CREATE_TOP_UP_SUCCESS = "Top up created successfully! Pay before expire!";
     public static final String GET_TOP_UP_SUCCESS = "Get top up information success!";

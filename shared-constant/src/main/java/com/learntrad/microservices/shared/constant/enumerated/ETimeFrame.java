@@ -8,29 +8,35 @@ import com.learntrad.microservices.shared.constant.ConstantBash;
 
 public enum ETimeFrame {
 
-    ONE_MINUTE("1M"),
-    FIVE_MINUTE("5M"),
-    FIFTEEN_MINUTE("15M"),
-    THIRTY_MINUTE("30M"),
-    ONE_HOUR("1H"),
-    TWO_HOUR("2H"),
-    FOUR_HOUR("4H"),
-    SIX_HOUR("6H"),
-    EIGHT_HOUR("8H"),
-    TWELVE_HOUR("12H"),
-    ONE_DAY("1D"),
-    THREE_DAY("3D"),
-    ONE_WEEK("1W"),
-    ONE_MONTH("1Mo");
+    ONE_MINUTE("1M", 1),
+    FIVE_MINUTE("5M", 5),
+    FIFTEEN_MINUTE("15M", 15),
+    THIRTY_MINUTE("30M", 30),
+    ONE_HOUR("1H", 60),
+    TWO_HOUR("2H", 120),
+    FOUR_HOUR("4H", 240),
+    SIX_HOUR("6H", 360),
+    EIGHT_HOUR("8H", 480),
+    TWELVE_HOUR("12H", 720),
+    ONE_DAY("1D", 1440),
+    THREE_DAY("3D", 4320),
+    ONE_WEEK("1W", 10080),
+    ONE_MONTH("1Mo", 43200);
 
     private final String description;
+    private final Integer inMinutes;
 
-    ETimeFrame (String description){
+    ETimeFrame (String description, Integer inMinutes){
         this.description = description;
+        this.inMinutes = inMinutes;
     }
 
     public String getDescription() {
         return description;
+    }
+    
+    public Integer getInMinutes() {
+        return inMinutes;
     }
 
     public static ETimeFrame findByDescription(String description) {

@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   keycloak_postgres:
     image: postgres:13-alpine
