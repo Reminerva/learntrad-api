@@ -310,7 +310,7 @@ public class QuizServiceImpl implements QuizService {
                     BigDecimal transformedClose = close.add(verticalTranslation).multiply(scale);
 
                     return new DataOfMarketData(
-                        (Instant) d.getClass().getMethod("getTimeBucketStart").invoke(d),
+                        null,
                         transformedOpen,
                         transformedHigh,
                         transformedLow,
@@ -420,7 +420,7 @@ public class QuizServiceImpl implements QuizService {
                         }
 
                         return new DataOfMarketData(
-                            (Instant) d.getClass().getMethod("getTimeBucketStart").invoke(d),
+                            null,
                             transformedOpen,
                             transformedHigh,
                             transformedLow,
