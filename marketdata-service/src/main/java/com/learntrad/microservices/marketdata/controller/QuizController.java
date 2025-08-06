@@ -59,8 +59,6 @@ public class QuizController {
     @PostMapping("/generate")
     @RequireRoles({ConstantBash.HAS_ROLE_CUSTOMER, ConstantBash.HAS_ROLE_ADMIN})
     public ResponseEntity<CommonResponse<QuizResponse>> generateQuiz(HttpServletRequest request, @RequestBody @Valid QuizRequest quizRequest) {
-        System.out.println("AA " + request.getHeader("Authorization"));
-        System.out.println("A " + quizRequest);
         QuizResponse quizResponse = quizService.generateQuiz(request.getHeader("Authorization"), quizRequest);
         CommonResponse<QuizResponse> response = CommonResponse.<QuizResponse>builder()
                 .message(ApiBash.GENERATE_QUIZ_SUCCESS)

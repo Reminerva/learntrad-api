@@ -33,7 +33,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<CommonResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
-        System.out.println("AAAA");
         TokenResponse response = authService.login(request);
         return ResponseEntity.ok(CommonResponse.<TokenResponse>builder()
             .data(response)

@@ -13,6 +13,10 @@ call :killPort 9901
 call :killPort 9902
 call :killPort 9903
 
+echo ============================================
+echo   Starting Spring Boot Applications...
+echo ============================================
+
 wt ^
 new-tab -d "%BASEDIR%\api-gateway" cmd /k ".\mvnw spring-boot:run" ^
 ; new-tab -d "%BASEDIR%\auth-service" cmd /k ".\mvnw spring-boot:run" ^

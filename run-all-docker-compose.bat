@@ -43,6 +43,10 @@ call :killPort 9903
 call :killPort 5436
 call :killPort 6380
 
+echo ================================
+echo   Starting Docker Compose...
+echo ================================
+
 :: Docker compose
 call :dockerUp "marketdata-service"
 call :dockerUp "trade-service"
@@ -90,7 +94,6 @@ set "CONTAINER_NAME=%SERVICE_DIR%_container"
 if exist "%DOCKER_COMPOSE_FILE%" (
     echo Running docker-compose in %SERVICE_DIR%...
     pushd "%FULL_DIR%"
-    docker-compose down
     docker-compose up -d
     
     popd

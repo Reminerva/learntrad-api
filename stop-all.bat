@@ -3,6 +3,18 @@ setlocal
 
 set BASEDIR=%cd%
 
+
+rem === Daftar nama class utama dari tiap service ===
+call :stopSpringApp "api-gateway" "com.learntrad.microservices.apigateway.ApiGatewayApplication"
+call :stopSpringApp "auth-service" "com.learntrad.microservices.auth.AuthServiceApplication"
+call :stopSpringApp "customer-service" "com.learntrad.microservices.customer.CustomerServiceApplication"
+call :stopSpringApp "marketdata-service" "com.learntrad.microservices.marketdata.MarketDataServiceApplication"
+call :stopSpringApp "marketrealtime-service" "com.learntrad.microservices.marketrealtime.MarketRealtimeServiceApplication"
+call :stopSpringApp "notification-service" "com.learntrad.microservices.notification.NotificationServiceApplication"
+call :stopSpringApp "topup-service" "com.learntrad.microservices.topup.TopupServiceApplication"
+call :stopSpringApp "trade-service" "com.learntrad.microservices.trade.TradeServiceApplication"
+call :stopSpringApp "tradeprocessor-service" "com.learntrad.microservices.tradeprocessor.TradeProcessorServiceApplication"
+
 echo Killing processes on used ports...
 
 call :killPort 9000
@@ -29,6 +41,23 @@ call :stopDockerCompose "tradeprocessor-service"
 
 
 echo Done.
+exit /b
+
+:stopSpringApp
+set "SERVICE_NAME=%~1"
+set "MAIN_CLASS=%~2"
+set "SERVICE_DIR=%BASEDIR%\%SERVICE_NAME%"
+
+echo Stopping %SERVICE_NAME% (%MAIN_CLASS%)...
+
+if exist "%SERVICE_DIR%\mvnw" (
+    pushd "%SERVICE_DIR%"
+    .\mvnw spring-boot:stop
+    popd
+    echo %SERVICE_NAME% stopped with mvnw.
+) else (
+    echo mvnw not found in %SERVICE_DIR%, skipping...
+)
 exit /b
 
 :stopDockerCompose

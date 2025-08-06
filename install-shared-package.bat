@@ -3,6 +3,10 @@ setlocal
 
 set MODULES=shared-client-external shared-constant shared-jwt-util shared-model-util
 
+echo ===============================
+echo   Building shared modules...
+echo ===============================
+
 for %%D in (%MODULES%) do (
     echo.
     echo ========== Building %%D ==========
