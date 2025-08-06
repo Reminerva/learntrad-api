@@ -4,7 +4,7 @@
 
 ## LearnTrad API
 
-LearnTrad API is a microservices-based backend system built to support a trading education platform. It provides services such as authentication, customer and admin management, market data handling, fetch quiz generation, top-up system, and trade placing simulation and processing — all designed using Spring Boot and deployed using Kubernetes.
+LearnTrad API is a microservices-based backend system built to support a trading simulation and technical analysis platform. It provides services such as authentication, customer and admin management, market data handling, fetch quiz generation, top-up system, and trade placing simulation and processing — all designed using Spring Boot and deployed using Kubernetes.
 
 A key feature of this platform is the Quiz Fetching system, where customers receive anonymous, preprocessed time-series data in the form of candlestick charts. The data is intentionally obfuscated — its real asset name, time frame, date and price scale are hidden or altered — to ensure users cannot look up actual historical prices while solving the quiz. This encourages customers to hone their technical analysis skills and think independently. Customers can answer the quiz and store their results for future reference.
 
