@@ -4,9 +4,9 @@ This document provides a introduction and comprehensive guide to using the Learn
 
 ## LearnTrad API
 
-LearnTrad API is a microservices-based backend system built to support a trading education platform. It provides services such as authentication, customer and admin management, market data handling, and trade placing and processing — all designed using Spring Boot and deployed using Kubernetes.
+LearnTrad API is a microservices-based backend system built to support a trading education platform. It provides services such as authentication, customer and admin management, market data handling, fetch quiz generation, top-up system, and trade placing simulation and processing — all designed using Spring Boot and deployed using Kubernetes.
 
-A key feature of this platform is the Quiz Fetching system, where customers receive anonymous, preprocessed time-series data in the form of candlestick charts. The data is intentionally obfuscated — its real asset name, time frame, and price scale are hidden or altered — to ensure users cannot look up actual historical prices while solving the quiz. This encourages independent analysis and strengthens data interpretation skills.
+A key feature of this platform is the Quiz Fetching system, where customers receive anonymous, preprocessed time-series data in the form of candlestick charts. The data is intentionally obfuscated — its real asset name, time frame, date and price scale are hidden or altered — to ensure users cannot look up actual historical prices while solving the quiz. This encourages customers to hone their technical analysis skills and think independently. Customers can answer the quiz and store their results for future reference.
 
 This system is developed for educational purposes, and serves as a scalable simulation of real-world trading services and challenges.
 
@@ -24,7 +24,7 @@ This system is developed for educational purposes, and serves as a scalable simu
     * [**Customer Experience and Profile Management**](#customer-experience-and-profile-management)
     * [**Trading Simulation**](#trading-simulation)
     * [**Top-Up System**](#top-up-system)
-    * [**Quiz Generation with Anonymized Market Data**](#quiz-generation-with-anonymized-market-data)
+    * [**Quiz Generation and Answer with Anonymized Market Data**](#quiz-generation-and-answer-with-anonymized-market-data)
     * [**Multi-Timeframe Data Access**](#multi-timeframe-data-access)
 2.  [**API Documentation (Swagger UI)**](#2-api-documentation-swagger-ui)
 3.  [**Getting Started**](#3-getting-started)
@@ -117,12 +117,14 @@ Customers are able to:
 Users may top up their balance, receive dummy payment confirmations, and view their own top-up data.
 Admins have access to all top-up records across the platform.
 
-### Quiz Generation with Anonymized Market Data
+### Quiz Generation and Answer with Anonymized Market Data
 One of LearnTrad’s core features is the Fetch Quiz, which delivers anonymized historical candlestick data:
 * The entity (e.g., XAUUSD) is hidden
 * The timeframe is undisclosed
 * Price values are rescaled to prevent matching with public historical data
-* The goal is to encourage customers to think independently without "cheating" by referencing actual historical data.
+* The date of the data is hidden
+* The goal is to encourage customers to hone their technical analysis skills and think independently without "cheating" by referencing actual historical data.
+* Customer can answer the quiz and store their results in the database.
 
 ### Multi-Timeframe Data Access
 This feature allows customers to access historical candlestick data across multiple timeframes:
