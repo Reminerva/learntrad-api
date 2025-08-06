@@ -1,6 +1,6 @@
 # LearnTrad
 
-To explore and use this application, you'll need to switch to either the **"development"** or **"deployment"** branch. Each branch contains instructions within its `README` on how to set up and run the application. Follow those guidelines to get started!
+**To explore and use this application, you'll need to switch to either the **"development"** or **"deployment"** branch. Each branch contains instructions within its `README` on how to set up and run the application. Follow those guidelines to get started!**
 
 ## LearnTrad API
 
