@@ -10,7 +10,7 @@ A key feature of this platform is the Quiz Fetching system, where customers rece
 
 This system is developed for educational purposes, and serves as a scalable simulation of real-world trading services and challenges.
 
-**App Architecture** :
+**App Architecture** : [**Lucid.app**](https://lucid.app/lucidspark/a21cf1a0-0350-4597-a55b-e923e33a341f/edit?viewport_loc=-814%2C-322%2C3709%2C2024%2C0_0&invitationId=inv_9565557f-f02d-4240-842e-333418859bd4)
 
 **ERD** : 
 
