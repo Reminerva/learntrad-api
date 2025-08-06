@@ -39,20 +39,43 @@ This system is developed for educational purposes, and serves as a scalable simu
 5.  [Roles and Authorization](#5-roles-and-authorization)
 6.  [API Endpoints](#6-api-endpoints)
     * [API Gateway](#api-gateway)
-    * [Authentication](#authentication)
+    * [Auth Service](#auth-service)
     * [Customer Service](#customer-service)
     * [Market Data Service](#market-data-service)
+    * [Quiz Service](#quiz-service)
     * [Trade Service](#trade-service)
     * [Top Up Service](#top-up-service)
-    * [Market Realtime Service](#market-realtime-service)
-    * [Trade Processor Service](#trade-processor-service)
-    * [Notification Service](#notification-service)
 7. [Models](#7-models)
-    * [Request Models](#request-models)
-        * [LoginRequest](#loginrequest)
-        * [RegisterRequest](#registerrequest)
-        * [RefreshTokenRequest](#refreshtokenrequest)
-    * [Response Models](#response-models)
+    * [Auth Service Model](#auth-service-model)
+        * [Auth Service Request](#auth-service-request)
+            * [LoginRequest](#loginrequest)
+            * [RegisterRequest](#registerrequest)
+            * [RefreshTokenRequest](#refreshtokenrequest)
+        * [Auth Service Response](#auth-service-response)
+            * [TokenResponse](#tokenresponse)
+    * [Customer Service Model](#customer-service-model)
+        * [Customer Service Request](#customer-service-request)
+            * [CustomerRequest](#customerrequest)
+        * [Customer Service Response](#customer-service-response)
+            * [CustomerResponse](#customerresponse)
+    * [Market Data Service Model](#market-data-service-model)
+        * [Market Data Service Request](#market-data-service-request)
+            * [QuizRequest](#quizrequest)
+            * [AnswerRequest](#answerrequest)
+        * [Market Data Service Response](#market-data-service-response)
+            * [MarketDataResponse](#marketdataresponse)
+            * [QuizResponse](#quizresponse)
+            * [AnswerResponse](#answerresponse)
+    * [Trade Service Model](#trade-service-model)
+        * [Trade Service Request](#trade-service-request)
+            * [TradeRequest](#traderequest)
+        * [Trade Service Response](#trade-service-response)
+            * [TradeResponse](#traderesponse)
+    * [Top Up Service Model](#top-up-service-model)
+        * [Top Up Service Request](#top-up-service-request)
+            * [TopUpRequest](#topuprequest)
+        * [Top Up Service Response](#top-up-service-response)
+            * [TopUpResponse](#topupresponse)
 
 ---
 
@@ -210,7 +233,19 @@ You have two options to run the application: **Option A: Running Locally using B
     copy customer-service\src\main\resources\.env_example customer-service\src\main\resources\.env
     ```
 
-4. **Run the Docker Composes Batch Script**
+4. **Run the Packages Installer Batch Script**
+
+    From the root project directory, run the batch script:
+
+    ```bash
+    ./install-shared-packages.bat
+    ```
+
+    This script will:
+    * Build and run all necessary maven packages
+    * Wait for each package to finish building
+
+5. **Run the Docker Composes Batch Script**
 
     From the root project directory, run the batch script:
 
@@ -223,7 +258,7 @@ You have two options to run the application: **Option A: Running Locally using B
     * Wait for each container to start
     * ⏳ The first run might take longer as images will be downloaded and containers will be built.
 
-5. **Run the Services**
+6. **Run the Services**
 
     From the root project directory, run the batch script:
 
@@ -236,11 +271,11 @@ You have two options to run the application: **Option A: Running Locally using B
     * Wait for each service to start
     * ⏳ The first run might take longer as dependencies will be downloaded and services will be built.
 
-6.  **Test the Endpoints**
+7.  **Test the Endpoints**
 
     Once the services are running, visit their Swagger UIs (or Postman): `http://localhost:9000/swagger-ui/index.html`
 
-7. **Stop the Application**
+8. **Stop the Application**
 
     To stop all services and clean up, run:
 
@@ -348,7 +383,7 @@ All API responses are wrapped in a `CommonResponse` object with the following st
 {
     "code": 200, // HTTP status code
     "message": "Success message",
-    "data": {}, // The actual response data (can be object or array)
+    "data": {}, // The actual response data structure depends on the endpoint
     "paging": { // Only present for paginated responses
         "totalPages": 2,
         "totalElement": 12,
@@ -359,6 +394,8 @@ All API responses are wrapped in a `CommonResponse` object with the following st
     }
 }
 ```
+
+Response data structures will be detailed in the following sections [Models](#7-models).
 
 Error responses will also follow this structure, but with a non-2xx code and an appropriate message.
 
@@ -379,7 +416,7 @@ Authorization: Bearer <your_jwt_access_token>
 
 ## 6. API Endpoints
 
-This section details all the available API endpoints. All successful responses will follow the `CommonResponse` structure.
+This section details all the available API endpoints. All responses will follow and wrapped in the [`CommonResponse`](#4-common-responses) structure. You can see the structure of the responses in the [Models](#7-models) section.
 
 <details>
 <summary><h2>API Gateway</h2></summary>
@@ -390,89 +427,562 @@ This is the main entry point for the API. It is responsible for routing requests
 </details>
 
 <details>
-<summary><h2>Authentication</h2></summary>
+<summary><h2>Auth Service</h2></summary>
 
-### Authentication
+### Auth Service
 
 **Auth Base Path:** `/api/auth`
 
 * **`POST {Auth Base Path}/register` - Register a new user (Customer)**
     * **Description:** Allows a new customer to register an account.
     * **Roles Required:** Public
-    * **Request Example (RegisterRequest):**
-        ```json
-        {
-            "username": "johndoe123",
-            "email": "john.doe@example.com",
-            "password": "securepassword123"
-        }
-        ```
-    * **Response Example:**
-        ```json
-        {
-            "code": 201,
-            "message": "Register success",
-            "data": {},
-            "paging": null
-        }
-        ```
+    * **Request: (RegisterRequest [(See below)](#registerrequest))**
+    * **Data Response: null**
 * **`POST {Auth Base Path}/login` - User Login**
     * **Description:** Authenticates a user and returns a JWT token.
     * **Roles Required:** Public
-    * **Request Example (LoginRequest):**
+    * **Request: (LoginRequest [(See below)](#loginrequest))**
+    * **Data Response: (TokenResponse [(See below)](#tokenresponse))**
+* **`POST {Auth Base Path}/logout` - User Logout**
+    * **Description:** Invalidates the user's session/token.
+    * **Roles Required:** Authenticated Users (Admin, Customer)
+    * **Request:** (No request body needed, typically uses Bearer JWT Access Token in header)
+    * **Data Response: null**
+* **`POST {Auth Base Path}/refresh-token` - Refresh Token**
+    * **Description:** Refreshes the user's JWT token.
+    * **Roles Required:** Authenticated Users (Admin, Customer)
+    * **Request: (RefreshTokenRequest [(See below)](#refreshtokenrequest))**
+    * **Data Response: (TokenResponse [(See below)](#tokenresponse))**
+* **`POST {Auth Base Path}/validate-token` - Validate Token**
+    * **Description:** Validates the user's JWT token.
+    * **Roles Required:** public
+    * **Request:** (No request body needed, typically uses Bearer JWT Access Token in header)
+    * **Data Response: (Boolean Type)**
+</details>
+
+<details>
+<summary><h2>Customer Service</h2></summary>
+
+### Customer Service
+
+**Customer Base Path:** `/api/customer`
+
+* **`POST {Customer Base Path}` - Create a new customer**
+    * **Description:** Creates a new customer.
+    * **Roles Required:** Customer
+    * **Request: (CustomerRequest [(See below)](#customerrequest))**
+    * **Data Response: (CustomerResponse [(See below)](#customerresponse))**
+* **`GET {Customer Base Path}` - Get all customers**
+    * **Description:** Retrieves a list of all customers with optional filtering, sorting, and pagination.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: List of (CustomerResponse [(See below)](#customerresponse))**
+* **`GET {Customer Base Path}/{id}` - Get a specific customer by ID**
+    * **Description:** Retrieves a specific customer by their ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (CustomerResponse [(See below)](#customerresponse))**
+* **`PUT {Customer Base Path}/{id}` - Update a specific customer by ID**
+    * **Description:** Updates a specific customer by their ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (CustomerResponse [(See below)](#customerresponse))**
+* **`DELETE {Customer Base Path}/{id}` - Delete a specific customer by ID**
+    * **Description:** Deletes a specific customer by their ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: null**
+* **`GET {Customer Base Path}/me` - Get your own customer profile**
+    * **Description:** Retrieves your own customer profile.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (CustomerResponse [(See below)](#customerresponse))**
+* **`PUT {Customer Base Path}/me` - Update your own customer profile**
+    * **Description:** Updates your own customer profile.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (CustomerResponse [(See below)](#customerresponse))**
+* **`DELETE {Customer Base Path}/me` - Delete your own customer profile**
+    * **Description:** Deletes your own customer profile.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: null**
+</details>
+
+<details>
+<summary><h2>Market Data Service</h2></summary>
+
+### Market Data Service
+
+**Market Data Base Path:** `/api/market-data`
+
+* **`GET {Market Data Base Path}/{marketDataType}/tick` - Get latest market data tick**
+    * **Description:** Retrieves the latest market data tick.
+    * **Roles Required:** Customer or Admin
+    * **Request:** (No request body needed)
+    * **Data Response: List of (MarketDataResponse [(See below)](#marketdataresponse))**
+* **`GET {Market Data Base Path}/{marketDataType}` - Fetch a specific market data**
+    * **Description:** Retrieves a specific market data.
+    * **Roles Required:** Customer or Admin
+    * **Request:** (No request body needed)
+    * **Request Parameters (Optional):**
+        - `timeBucketStartMin`: The minimum time bucket start (e.g., 2022-09-27T18:00:00Z).
+        - `timeBucketStartMax`: The maximum time bucket start (e.g., 2022-09-27T18:00:00Z).
+        - `timeFrame`: 1M, 5M, 15M, 1H, 2H, 4H, 6H, 8H, 12H, 1D, 3D, 1W, 1Mo.
+        - `direction`: ASC or DESC.
+    * **Data Response: (MarketDataResponse [(See below)](#marketdataresponse))**
+* **`GET {Market Data Base Path}/{marketDataType}/{timeBucketStart}` - Fetch Market Data by specific time bucket start**
+    * **Description:** Retrieves market data for a specific time bucket start.
+    * **Roles Required:** Customer or Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (MarketDataResponse [(See below)](#marketdataresponse))**
+
+</details>
+
+<details>
+<summary><h2>Quiz Service</h2></summary>
+
+### Quiz Service
+
+**Quiz Base Path:** `/api/market-data/quiz`
+
+* **`GET {Quiz Base Path}` - Get all quizzes**
+    * **Description:** Retrieves a list of all quizzes.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: List of (QuizResponse [(See below)](#quizresponse))**
+* **`GET {Quiz Base Path}/{id}` - Get a specific quiz by ID**
+    * **Description:** Retrieves a specific quiz by their ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (QuizResponse [(See below)](#quizresponse))**
+* **`GET {Quiz Base Path}/mine` - Get your own quizzes**
+    * **Description:** Retrieves your own quizzes.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: List of (QuizResponse [(See below)](#quizresponse))**
+* **`POST {Quiz Base Path}/generate` - Generate a new quiz**
+    * **Description:** Generates a new quiz.
+    * **Roles Required:** Customer or Admin
+    * **Request: (QuizRequest [(See below)](#quizrequest))**
+    * **Data Response: (QuizResponse [(See below)](#quizresponse))**
+* **`PUT {Quiz Base Path}/mine/{id}/answer` - Answer a specific quiz by ID**
+    * **Description:** Answers a specific quiz by their ID.
+    * **Roles Required:** Customer
+    * **Request: (AnswerRequest [(See below)](#answerrequest))**
+    * **Data Response: (QuizResponse [(See below)](#quizresponse))**
+
+</details>
+
+<details>
+<summary><h2>Trade Service</h2></summary>
+
+### Trade Service
+
+**Trade Base Path:** `/api/trade`
+
+* **`POST {Trade Base Path}` - Place a new trade**
+    * **Description:** Creates a new trade.
+    * **Roles Required:** Customer
+    * **Request: (TradeRequest [(See below)](#traderequest))**
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+* **`POST {Trade Base Path}/market-execute` - Place a market execution trade**
+    * **Description:** Creates a market execution trade.
+    * **Roles Required:** Customer
+    * **Request: (TradeRequest [(See below)](#traderequest))**
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+* **`GET {Trade Base Path}` - Get all trades**
+    * **Description:** Returns a list of all trades with optional filtering, sorting, and pagination.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Request Parameters: (Optional)**
+        - `id`: filter by specific trade ID,
+        - `userId`: filter by specific user ID,
+        - `lotMin`: filter by the lowe bound of the lot size,
+        - `lotMax`: filter by the upper bound of the lot size,
+        - `priceAtMin`: filter by the price at (Lower Bound. e.g., 450.00),
+        - `priceAtMax`: filter by the price at (Upper Bound. e.g., 460.00),
+        - `stopLossAtMin`: filter by the stop loss at (Lower Bound. e.g., 450.00),
+        - `stopLossAtMax`: filter by the stop loss at (Upper Bound. e.g., 460.00),
+        - `takeProfitAtMin`: filter by the take profit at (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `takeProfitAtMax`: filter by the take profit at (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMin`: filter by the date of creating the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMax`: filter by the date of creating the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMin`: filter by the date of updating the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMax`: filter by the date of updating the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `tradeAtMin`: filter by the trade at (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `tradeAtMax`: filter by the trade at (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `marketDataType`: filter by market data type (e.g., XAUUSD),
+        - `tradeStatus`: filter by trade status (e.g., PENDING, RUNNING, PROFIT, LOSS, CANCELLED, EXPIRED),
+        - `tradeType`:  filter by trade type,
+        - `closedAtMin`: filter by the date of closing the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `closedAtMax`: filter by the date of closing the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `page`: page number (starting from 0),
+        - `size`: number of items per page,
+        - `sortBy`: field to sort by (e.g., createdAt, updatedAt, etc),
+        - `direction`: sort direction (e.g., ASC, DESC)
+    * **Data Response: List of (TradeResponse [(See below)](#traderesponse))**
+* **`GET {Trade Base Path}/mine` - Get your own trades**
+    * **Description:** Retrieves your own trades with optional filtering, sorting, and pagination.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Request Parameters: (Optional)**
+        - `id`: filter by specific trade ID,
+        - `lotMin`: filter by the lowe bound of the lot size,
+        - `lotMax`: filter by the upper bound of the lot size,
+        - `priceAtMin`: filter by the price at (Lower Bound. e.g., 450.00),
+        - `priceAtMax`: filter by the price at (Upper Bound. e.g., 460.00),
+        - `stopLossAtMin`: filter by the stop loss at (Lower Bound. e.g., 450.00),
+        - `stopLossAtMax`: filter by the stop loss at (Upper Bound. e.g., 460.00),
+        - `takeProfitAtMin`: filter by the take profit at (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `takeProfitAtMax`: filter by the take profit at (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMin`: filter by the date of creating the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMax`: filter by the date of creating the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMin`: filter by the date of updating the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMax`: filter by the date of updating the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `tradeAtMin`: filter by the trade at (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `tradeAtMax`: filter by the trade at (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `marketDataType`: filter by market data type (e.g., XAUUSD),
+        - `tradeStatus`: filter by trade status (e.g., PENDING, RUNNING, PROFIT, LOSS, CANCELLED, EXPIRED),
+        - `tradeType`:  filter by trade type,
+        - `closedAtMin`: filter by the date of closing the trade (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `closedAtMax`: filter by the date of closing the trade (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `page`: page number (starting from 0),
+        - `size`: number of items per page,
+        - `sortBy`: field to sort by (e.g., createdAt, updatedAt, etc),
+        - `direction`: sort direction (e.g., ASC, DESC)
+    * **Data Response: List of (TradeResponse [(See below)](#traderesponse))**
+* **`GET {Trade Base Path}/{id}` - Get a specific trade**
+    * **Description:** Retrieves a specific trade by its ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+* **`GET {Trade Base Path}/mine/{id}` - Get your own specific trade by ID**
+    * **Description:** Retrieves your own specific trade by its ID.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+* **`PUT {Trade Base Path}/mine/{id}` - Update a specific trade by ID**
+    * **Description:** Updates a specific trade by its ID.
+    * **Roles Required:** Customer
+    * **Request: (TradeRequest [(See below)](#traderequest). PriceAt, TradeAt, Lot and TradeType cannot be updated)**
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+* **`PUT {Trade Base Path}/mine/{id}/cancel` - Cancel a specific trade by ID**
+    * **Description:** Cancels your own specific trade by its ID.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (TradeResponse [(See below)](#traderesponse))**
+
+</details>
+
+<details>
+<summary><h2>Top Up Service</h2></summary>
+
+### Top Up Service
+
+**Top Up Base Path:** `/api/top-up`
+
+* **`POST {Top Up Base Path}/me` - Create your own top up**
+    * **Description:** Creates a new top up.
+    * **Roles Required:** Customer
+    * **Request: (TopUpRequest [(See below)](#topuprequest))**
+    * **Data Response: (TopUpResponse [(See below)](#topupresponse))**
+* **`GET {Top Up Base Path}/me` - Get your own top up**
+    * **Description:** Retrieves your own top up.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Request Parameters:**
+        - `amountMin`: filter by the top up amount (Lower Bound),
+        - `amountMax`: filter by the top up amount (Upper Bound),
+        - `paymentStatus`: filter by payment status (e.g., PENDING, SUCCESS, FAILED),
+        - `paymentType`: filter by payment type (e.g., BANK TRANSFER, PAYPAL),
+        - `expiredAtMin`: filter by the date of expiring the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `expiredAtMax`: filter by the date of expiring the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMin`: filter by the date of creating the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMax`: filter by the date of creating the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMin`: filter by the date of updating the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMax`: filter by the date of updating the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `page`: page number (starting from 0),
+        - `size`: number of items per page,
+        - `sortBy`: field to sort by (e.g., createdAt, updatedAt, etc),
+        - `direction`: sort direction (e.g., ASC, DESC)
+    * **Data Response: List of (TopUpResponse [(See below)](#topupresponse))**
+* **`GET {Top Up Base Path}/me/{id}` - Get your own specific top up by ID**
+    * **Description:** Retrieves your own specific top up by its ID.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (TopUpResponse [(See below)](#topupresponse))**
+* **`PUT {Top Up Base Path}/mine/{id}/pay` - Pay a specific top up by ID**
+    * **Description:** Pays your own specific top up by its ID.
+    * **Roles Required:** Customer
+    * **Request:** (No request body needed)
+    * **Data Response: (TopUpResponse [(See below)](#topupresponse))**
+* **`GET {Top Up Base Path}` - Get all top ups**
+    * **Description:** Retrieves a list of all top ups.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Request Parameters:**
+        - `amountMin`: filter by the top up amount (Lower Bound),
+        - `amountMax`: filter by the top up amount (Upper Bound),
+        - `paymentStatus`: filter by payment status (e.g., PENDING, SUCCESS, FAILED),
+        - `paymentType`: filter by payment type (e.g., BANK TRANSFER, PAYPAL),
+        - `expiredAtMin`: filter by the date of expiring the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `expiredAtMax`: filter by the date of expiring the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMin`: filter by the date of creating the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `createdAtMax`: filter by the date of creating the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMin`: filter by the date of updating the top up (Lower Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `updatedAtMax`: filter by the date of updating the top up (Upper Bound. e.g., YYYY-MM-DDTHH:mm:ssZ),
+        - `page`: page number (starting from 0),
+        - `size`: number of items per page,
+        - `sortBy`: field to sort by (e.g., createdAt, updatedAt, etc),
+        - `direction`: sort direction (e.g., ASC, DESC)
+    * **Data Response: List of (TopUpResponse [(See below)](#topupresponse))**
+* **`GET {Top Up Base Path}/{id}` - Get a specific top up by ID**
+    * **Description:** Retrieves a specific top up by its ID.
+    * **Roles Required:** Admin
+    * **Request:** (No request body needed)
+    * **Data Response: (TopUpResponse [(See below)](#topupresponse))**
+
+</details>
+
+---
+
+## 7. Models
+
+---
+
+### Auth Service Model
+
+#### Auth Service Request
+
+##### LoginRequest
         ```json
         {
             "username": "john.doe@example.com",
             "password": "securepassword123"
         }
         ```
-    * **Response Example:**
+
+##### RegisterRequest
         ```json
         {
-            "code": 202,
-            "message": "Log in success",
-            "data": {
-                "accessToken": "access-token-example",
-                "refreshToken": "refresh-token-example"
-            },
-            "paging": null
+            "username": "johndoe123" [3, 20] characters,
+            "email": "john.doe@example.com" [8, 40] characters,
+            "password": "securepassword123"
         }
         ```
-* **`POST {Auth Base Path}/logout` - User Logout**
-    * **Description:** Invalidates the user's session/token.
-    * **Roles Required:** Authenticated Users (Admin, Cashier, Customer)
-    * **Request Example:** (No request body needed, typically uses Bearer JWT Access Token in header)
-        ```json
-        {}
-        ```
-    * **Response Example:**
-        ```json
-        {
-            "code": 200,
-            "message": "Log out success",
-            "data": {},
-            "paging": null
-        }
-        ```
-* **`POST {Auth Base Path}/refresh-token` - Refresh Token**
-    * **Description:** Refreshes the user's JWT token.
-    * **Roles Required:** Authenticated Users (Admin, Cashier, Customer)
-    * **Request Example (RefreshTokenRequest):**
+
+##### RefreshTokenRequest
         ```json
         {
             "refreshToken": "refresh-token-example"
         }
         ```
-    * **Response Example:**
+
+#### Auth Service Response
+
+##### TokenResponse
         ```json
         {
-            "code": 200,
-            "message": "Refresh token success",
-            "data": {
-                "accessToken": "access-token-example",
-                "refreshToken": "refresh-token-example"
-            },
-            "paging": null
+            "accessToken": "access-token-example",
+            "refreshToken": "refresh-token-example"
         }
-</details>
+        ```
 
+---
+
+### Customer Service Model
+
+#### Customer Service Request
+
+##### CustomerRequest
+        ```json
+        {
+            "fullname": "John",
+            "address": "123 Main Street",
+            "birthDate": "1990-01-01"
+        }
+        ```
+
+#### Customer Service Response
+
+##### CustomerResponse
+        ```json
+        {
+            "id": "id-example",
+            "fullname": "john",
+            "address": "123 Main Street",
+            "birthDate": "1990-01-01",
+            "balance": 5000.0,
+            "createdAt": "2022-01-01T00:00:00Z",
+            "updatedAt": "2022-01-01T00:00:00Z",
+            "userId": "user-id-example",
+            "isActive": true
+        }
+        ```
+
+---
+
+### Market Data Service Model
+
+#### Market Data Service Request
+
+##### QuizRequest
+        ```json
+        {
+            "nSize": "tiny" ["tiny", "standard", "large"]
+        }
+        ```
+
+##### AnswerRequest
+        ```json
+        {
+            "priceAt": 540.00,
+            "takeProfitAt": 550.00,
+            "stopLossAt": 530.00
+        }
+        ```
+
+#### Market Data Service Response
+
+##### MarketDataResponse
+        ```json
+        {
+            "timeBucketStartMin": "2022-01-02T00:00:00Z",
+            "timeBucketEndMax": "2022-01-01T00:00:00Z",
+            "marketDataType": "XAUUSD",
+            "dataCount": 120,
+            "marketData": [
+                {
+                    "timeBucketStart": "2022-01-02T00:00:00Z",
+                    "low": 540.00,
+                    "high": 550.00,
+                    "closed": 545.00,
+                    "open": 545.00,
+                    "volume": 100
+                },
+                ...
+            ]
+        }
+        ```
+
+##### QuizResponse
+        ```json
+        {
+            "id": "id-example",
+            "userId": "user-id-example",
+            "createdAt": "2022-01-01T00:00:00Z",
+            "updatedAt": "2022-01-01T00:00:00Z",
+            "answer": {
+                AnswerResponse
+            },
+            "dataCount": 120,
+            "quizMarketData": [
+                {
+                    "timeBucketStart": "2022-01-02T00:00:00Z",
+                    "low": 540.00,
+                    "high": 550.00,
+                    "closed": 545.00,
+                    "open": 545.00,
+                    "volume": 100
+                },
+                ...
+            ],
+            "nsize": "TINY"
+        }
+        ```
+
+##### AnswerResponse
+        ```json
+        {
+            "result": -10.0,
+            "priceAt": 540.00,
+            "takeProfitAt": 550.00,
+            "stopLossAt": 530.00,
+            "dataCount": 60,
+            "answerMarketData": [
+                {
+                    "timeBucketStart": "2022-01-30T00:00:00Z",
+                    "low": 540.00,
+                    "high": 550.00,
+                    "closed": 545.00,
+                    "open": 545.00,
+                    "volume": 100
+                },
+                ...
+            ]
+        }
+        ```
+
+---
+
+### Trade Service Model
+
+#### Trade Service Request
+
+##### TradeRequest
+        ```json
+        {
+            "lot": 0.01 [0, 10],
+            "priceAt": 350.0,
+            "stopLossAt": 400.0,
+            "takeProfitAt": 300.0,
+            "tradeAt": "2022-01-01T00:00:00Z",
+            "marketDataType": "XAUUSD",
+            "tradeType": "SELL STOP" [BUY LIMIT, BUY STOP, SELL LIMIT, SELL STOP, MARKET EXECUTION BUY, MARKET EXECUTION SELL],
+            "expiredAt": "2022-01-01T00:00:00Z" (optional),
+        }
+        ```
+
+#### Trade Service Response
+
+##### TradeResponse
+        ```json
+        {
+            "id": "id-example",
+            "userId": "user-id-example",
+            "priceAt": 350.0,
+            "stopLossAt": 400.0,
+            "takeProfitAt": 300.0,
+            "createdAt": "2022-01-01T00:00:00Z",
+            "updatedAt": "2022-01-01T00:00:00Z",
+            "tradeAt": "2022-01-01T00:00:00Z",
+            "lot": 0.01,
+            "marketDataType": "XAUUSD",
+            "tradeStatus": "RUNNING" [RUNNING, PENDING, EXPIRED, CANCELLED, LOSS, PROFIT],
+            "tradeType": "SELL STOP",
+            "closedAt": "2022-01-02T00:00:00Z",
+            "expiredAt": "2022-01-02T00:00:00Z",
+        }
+        ```
+
+---
+
+### Top Up Service Model
+
+#### Top Up Service Request
+
+##### TopUpRequest
+        ```json
+        {
+            "amount": 100.0,
+            "paymentType": "BANK TRANSFER" [BANK TRANSFER, PAYPAL, DANA],
+        }
+        ```
+
+#### Top Up Service Response
+
+##### TopUpResponse
+        ```json
+        {
+            "id": "id-example",
+            "userId": "user-id-example",
+            "amount": 100.0,
+            "paymentType": "BANK TRANSFER",
+            "paymentStatus": "PENDING" [PENDING, SUCCESS, FAILED],
+            "createdAt": "2022-01-01T00:00:00Z",
+            "updatedAt": "2022-01-01T00:00:00Z",
+            "expiredAt": "2022-01-02T00:00:00Z"
+        }
+
+---
